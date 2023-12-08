@@ -44,7 +44,7 @@ def sell_decision(symbol1, symbol2, binance_spot_api):
         logging.info(f'Decided to sell {symbol} based on moving average crossover.')
         return True
     else:
-        logging.info(f'Decided not to sell {symbol} based on moving average.')
+        logging.info(f'Decided not to sell {symbol} based on moving averages.')
 
     return False
 
@@ -72,16 +72,14 @@ def buy_decision(symbol1, symbol2, binance_spot_api):
         logging.info(f'Decided to buy {symbol} based on moving average crossover.')
         return True
     else:
-        logging.info(f'Decided not to buy {symbol} based on moving average.')
+        logging.info(f'Decided not to buy {symbol} based on moving averages.')
         
     return False
 
 
 def binance_status(binance_spot_api):
     status: bool = binance_spot_api.get_system_status()['status'] == 0
-    if status: 
-        logging.info('Binance status is okay!')
-    else:
+    if not status: 
         logging.info('Cannot reach to Binance!')
 
     return status

@@ -24,7 +24,6 @@ def main():
 
     while True:
         if not binance_status(binance_spot_api):
-            logging.info("Sleeping for 1 second!")    
             time.sleep(1)
             continue
         
@@ -53,7 +52,7 @@ def main():
         except Exception as e:
             print(f"An error occurred: {e}")
         
-        time.sleep(2.5)
-
+        time.sleep(60)
+        
 if __name__ == '__main__':
     main()

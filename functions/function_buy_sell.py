@@ -37,7 +37,7 @@ def sell(binance_spot_api, symbol1, symbol2, wallet):
         pnl1 = final1 - INITIAL_CAPITAL1
         pnl2 = final2 - INITIAL_CAPITAL2
 
-        log_info(f"SOLD {symbol}!\n{round(qty,3)} {symbol1} @{price}\nCommission Paid: {round(commission,3)} {comissionAsset}\BALANCE:\n{symbol1}: {round(initial1,2)} -> {round(final1,2)} ({round(change1,2)})\n{symbol2}: {round(initial2,2)} -> {round(final2,2)} ({round(change2,2)})\nP&L:\n{symbol1} {round(pnl1,2)}\n{symbol2} {round(pnl2,2)} ")
+        log_info(f"SOLD {round(qty,3)} {symbol1} @{price}\nCommission Paid: {round(commission,3)} {comissionAsset}\n\nBALANCE\n{symbol1}: {round(initial1,2)} > {round(final1,2)} ({round(change1,2)})\n{symbol2}: {round(initial2,2)} > {round(final2,2)} ({round(change2,2)})\n\nP&L\n{symbol1}: {round(pnl1,2)}\n{symbol2}: {round(pnl2,2)} ")
 
         log_trade(f'{sell_order_response["side"]},{sell_order_response["symbol"]},{sell_order_response["status"]},{price},{qty},{commission},{comissionAsset}')
         log_last(f'{symbol},SELL,{change2}')
@@ -76,7 +76,7 @@ def buy(binance_spot_api, symbol1, symbol2, wallet):
         pnl1 = final1 - INITIAL_CAPITAL1
         pnl2 = final2 - INITIAL_CAPITAL2
 
-        log_info(f"BOUGHT {symbol}!\n{qty} {symbol1} @{price}\nCommission Paid: {round(commission,3)} {comissionAsset}\BALANCE:\n{symbol1}: {round(initial1,2)} -> {round(final1,2)} ({round(change1,2)})\n{symbol2}: {round(initial2,2)} -> {round(final2,2)} ({round(change2,2)})\nP&L:\n{symbol1} {round(pnl1,2)}\n{symbol2} {round(pnl2,2)} ")
+        log_info(f"BOUGHT {qty} {symbol1} @{price}\nCommission Paid: {round(commission,3)} {comissionAsset}\n\nBALANCE\n{symbol1}: {round(initial1,2)} > {round(final1,2)} ({round(change1,2)})\n{symbol2}: {round(initial2,2)} > {round(final2,2)} ({round(change2,2)})\n\nP&L\n{symbol1}: {round(pnl1,2)}\n{symbol2}: {round(pnl2,2)} ")
 
         log_trade(f'{buy_order_response["side"]},{buy_order_response["symbol"]},{buy_order_response["status"]},{price},{qty},{commission},{comissionAsset}')
         log_last(f'{symbol},BUY,{change1}')

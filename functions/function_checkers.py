@@ -8,11 +8,9 @@ from config import VOLATILITY_THRESHOLD, RSI_THRESHOLD
 def calculate_price_change(symbol):
     current_price = float(Client().get_ticker(symbol=symbol)['lastPrice'])
 
-    # Calculate the start and end times for the 5-minute interval
     end_time = datetime.now()
     start_time = end_time - datetime.timedelta(minutes=5)
 
-    # Fetch the previous price from the 5-minute interval
     klines = Client().get_historical_klines(
         symbol=symbol,
         interval=Client.KLINE_INTERVAL_5MINUTE,

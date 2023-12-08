@@ -1,7 +1,7 @@
 ## Run
 
 1. Clone the repository.
-2. Generate a Binance API key (with Spot access) and put it in your custom `.env`.
+2. Generate a Binance API key (with Spot access) and put it in `config.py`.
 3. Run `pip install -r requirements.txt`.
 4. Run `python main.py`.
 
@@ -11,10 +11,9 @@ This will run an example bot on trading cryptocurrencies.
 
 To write custom bots you can:
 
-- Define new indicators in `indicators.py`.
-- Define a new strategy in `main.py` (especially inside `is_it_time_to_sell`
-  and `is_it_time_to_buy` functions).
-- Config your bot settings in `config.py`.
+- Define new indicators in `indicators`.
+- Define a new strategy in `function_checkers.py` .
+- Config your Bot and API settings in `config.py`.
 
 ## Last Transaction
 

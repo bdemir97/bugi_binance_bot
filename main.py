@@ -40,11 +40,11 @@ def main():
             wallet = last[2]
 
             if type == "SELL":
-                #if buy_decision(SYMBOL1, SYMBOL2):
-                buy(binance_spot_api, SYMBOL1, SYMBOL2, wallet)
+                if buy_decision(SYMBOL1, SYMBOL2):
+                    buy(binance_spot_api, SYMBOL1, SYMBOL2, wallet)
             if type == "BUY":
-                #if sell_decision(SYMBOL1, SYMBOL2):
-                sell(binance_spot_api, SYMBOL1, SYMBOL2, wallet)
+                if sell_decision(SYMBOL1, SYMBOL2):
+                    sell(binance_spot_api, SYMBOL1, SYMBOL2, wallet)
         except FileNotFoundError:
             print(f"Txt file not found!")
         except Exception as e:

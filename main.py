@@ -22,7 +22,7 @@ def main():
     logging.basicConfig(level=logging.INFO, format='%(levelname)s %(asctime)s %(message)s', datefmt='%d/%m/%Y %H:%M', handlers=[logging.FileHandler("application.log"), logging.StreamHandler(sys.stdout)])
     init_bot()
 
-    for i in range(3):
+    while True:
         if not binance_status(binance_spot_api):
             logging.info("Sleeping for 1 second!")    
             time.sleep(1)
@@ -50,12 +50,10 @@ def main():
                 if sell_decision(SYMBOL1, SYMBOL2, binance_spot_api):
                     sell(binance_spot_api, SYMBOL1, SYMBOL2, wallet)
 
-        except FileNotFoundError:
-            print(f"Txt file not found!")
         except Exception as e:
             print(f"An error occurred: {e}")
         
-        time.sleep(3)
+        time.sleep(2.5)
 
 if __name__ == '__main__':
     main()

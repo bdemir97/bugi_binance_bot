@@ -5,8 +5,6 @@ from binance.client import Client
 from indicators.indicators import heikin_today, heikin_yesterday, calculate_ma, rsi
 from config import VOLATILITY_THRESHOLD, RSI_THRESHOLD
 
-global binance_spot_api
-
 def calculate_price_change(symbol):
     current_price = float(Client().get_ticker(symbol=symbol)['lastPrice'])
 
@@ -25,7 +23,8 @@ def calculate_price_change(symbol):
 
     return ((current_price - previous_price) / previous_price) * 100
 
-def sell_decision(symbol):
+def sell_decision(symbol1, symbol2):
+    symbol = symbol1+symbol2
     price_change_percentage = calculate_price_change(symbol)
 
     if abs(price_change_percentage) >= VOLATILITY_THRESHOLD:
@@ -44,7 +43,9 @@ def sell_decision(symbol):
     return False
 
 
-def buy_decision(symbol):
+def buy_decision(symbol1, symbol2):
+    symbol = symbol1+symbol2
+
     logging.info('Checking to buy for ' + symbol)
     suitable= False  #Define buying strategy here!
     if suitable:
@@ -54,7 +55,7 @@ def buy_decision(symbol):
     return suitable
 
 
-def binance_status():
+def binance_status(binance_spot_api):
     status: bool = binance_spot_api.get_system_status()['status'] == 0
     if status: 
         logging.info('Binance status is okay!')

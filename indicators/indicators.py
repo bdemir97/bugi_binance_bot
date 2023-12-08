@@ -1,8 +1,8 @@
 from datetime import datetime, timedelta
 
-from indicator_heikin import calculate_heikin_ashi
-from indicator_rsi import calculate_rsi
-from indicator_ma import calculate_ma
+from .indicator_heikin import calculate_heikin_ashi
+from .indicator_rsi import calculate_rsi
+from .indicator_ma import calculate_ma
 
 def rsi(symbol,num_days):
     end_time = datetime.now()

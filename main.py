@@ -3,43 +3,54 @@ from binance.client import Client
 from functions.function_buy_sell import buy, sell
 from functions.function_checkers import sell_decision, buy_decision, binance_status
 from functions.function_telegram import send_message
-from functions.function_update_balance import update_account_usdt_balance
 
-from config import BINANCE_API_TIMEOUT, SYMBOL, BINANCE_API_KEY, BINANCE_SECRET_KEY
+from config import BINANCE_API_TIMEOUT, SYMBOL1, SYMBOL2, BINANCE_API_KEY, BINANCE_SECRET_KEY
 from return_codes import *
 
-import logging, sys, asyncio, time
+import logging, sys, time
 
-global binance_spot_api
-global account_free_usdt_balance
-global last_account_free_usdt_balances_list
-global account_locked_usdt_balance
-global last_account_locked_usdt_balances_list
-
+csv_file = 'files/trade_history.csv'
+txt_file = 'files/last_transaction.txt'
 
 def init_bot():
     global binance_spot_api
     binance_spot_api = Client(api_key=BINANCE_API_KEY, api_secret=BINANCE_SECRET_KEY, requests_params={'timeout': BINANCE_API_TIMEOUT})
     logging.info('Initiating bot...')
-    asyncio.run(send_message('Bugi Binance Bot is started!'))
+    
+    send_message("Bugi Binance Bot started running...")
+
 
 def main():
     logging.basicConfig(level=logging.INFO, format='%(levelname)s %(asctime)s %(message)s', datefmt='%d/%m/%Y %H:%M', handlers=[logging.FileHandler("application.log"), logging.StreamHandler(sys.stdout)])
     init_bot()
 
-    while True:
-        if not binance_status():
+    for i in range(5):
+        if not binance_status(binance_spot_api):
             logging.info("Sleeping for 5 seconds!")    
             time.sleep(5)
             continue
-        update_account_usdt_balance(binance_spot_api)
         
-        if sell_decision(SYMBOL):
-            sell(binance_spot_api, SYMBOL)
-        if buy_decision(SYMBOL):
-            buy(binance_spot_api, SYMBOL)
-    
-        return
+        try:
+            with open(txt_file, 'r') as file:
+                last_transaction = file.read()
+            
+            last = last_transaction.split(',')
+            parity = last[0] #you can check if you are trading with correct parity
+            type = last[1]
+            wallet = last[2]
+
+            if type == "SELL":
+                #if buy_decision(SYMBOL1, SYMBOL2):
+                buy(binance_spot_api, SYMBOL1, SYMBOL2, wallet)
+            if type == "BUY":
+                #if sell_decision(SYMBOL1, SYMBOL2):
+                sell(binance_spot_api, SYMBOL1, SYMBOL2, wallet)
+        except FileNotFoundError:
+            print(f"Txt file not found!")
+        except Exception as e:
+            print(f"An error occurred: {e}")
+        
+        time.sleep(5)
 
 if __name__ == '__main__':
     main()

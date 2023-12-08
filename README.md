@@ -5,7 +5,7 @@
 3. Run `pip install -r requirements.txt`.
 4. Run `python main.py`.
 
-This will run an example bot on trading Bitcoin and Ethereum.
+This will run an example bot on trading cryptocurrencies.
 
 ## Config
 
@@ -15,6 +15,11 @@ To write custom bots you can:
 - Define a new strategy in `main.py` (especially inside `is_it_time_to_sell`
   and `is_it_time_to_buy` functions).
 - Config your bot settings in `config.py`.
+
+## Last Transaction
+
+Last Transaction is written into file last_transaction.txt to keep track of the trade order. 
+If you run for the first time, write MINAUSDT(your parity),SELL,10.0000(your starting budget)
 
 ## Telegram Config
 

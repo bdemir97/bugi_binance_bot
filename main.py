@@ -1,3 +1,4 @@
+import logging, sys, time
 from binance.client import Client
 
 from functions.function_buy_sell import buy, sell
@@ -5,9 +6,6 @@ from functions.function_checkers import sell_decision, buy_decision, binance_sta
 from functions.function_telegram import send_message
 
 from config import BINANCE_API_TIMEOUT, SYMBOL1, SYMBOL2, BINANCE_API_KEY, BINANCE_SECRET_KEY
-from return_codes import *
-
-import logging, sys, time
 
 csv_file = 'files/trade_history.csv'
 txt_file = 'files/last_transaction.txt'

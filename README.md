@@ -18,7 +18,9 @@ To write custom bots you can:
 ## Last Transaction
 
 Last Transaction is written into file last_transaction.txt to keep track of the trade order. 
-If you run for the first time, write MINAUSDT(your parity),SELL,10.0000(your starting budget)
+If you run for the first time, enter your initial capitals for each parity in config.py and clear the last_transaction.txt
+- To start initial_capital2 will be used to buy symbol1.
+- Check the minimum required amount to trade for this parity, otherwise you will get NOTIONAL Error from API.
 
 ## Telegram Config
 

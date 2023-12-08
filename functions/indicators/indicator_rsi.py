@@ -1,14 +1,12 @@
 from binance.enums import *
-from binance.client import Client
+from datetime import datetime
 
-def calculate_rsi(symbol, num_days, start_time, end_time):
-    klines = Client().get_historical_klines(
+def calculate_rsi(symbol, num_days, start_time: datetime, end_time: datetime, binance_spot_api):
+    klines = binance_spot_api.get_historical_klines(
         symbol=symbol,
         interval=KLINE_INTERVAL_1DAY,
-        startTime=start_time.timestamp() * 1000,
-        endTime=end_time.timestamp() * 1000,
-        klines_type=HistoricalKlinesType.SPOT
-    )
+        start_str=str(int(start_time.timestamp() * 1000)),
+        end_str=str(int(end_time.timestamp() * 1000)))
     
     closes = [float(kline[4]) for kline in klines]
     price_changes = [closes[i] - closes[i - 1] for i in range(1, len(closes))]

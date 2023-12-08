@@ -1,12 +1,12 @@
 from binance.enums import *
-from binance.client import Client
+from datetime import datetime
 
-def calculate_heikin_ashi(symbol, start_time, end_time):
-    klines = Client().get_historical_klines(
+def calculate_heikin_ashi(symbol, start_time: datetime, end_time: datetime, binance_spot_api):
+    klines = binance_spot_api.get_historical_klines(
         symbol=symbol,
         interval=KLINE_INTERVAL_1DAY,
-        startTime=start_time.timestamp() * 1000,
-        endTime=end_time.timestamp() * 1000)
+        start_str=str(int(start_time.timestamp() * 1000)),
+        end_str=str(int(end_time.timestamp() * 1000)))
     opens = [float(kline[1]) for kline in klines]
     closes = [float(kline[4]) for kline in klines]
     highs = [float(kline[2]) for kline in klines]

@@ -31,7 +31,7 @@ def sell(binance_spot_api, symbol1, symbol2, wallet, mongodb):
             comissionAsset = fill["commissionAsset"]
             count += 1
 
-        price = price/count
+        price = round(price/count,4)
         final1 = float(binance_spot_api.get_asset_balance(asset=symbol1)['free'])
         final2 = float(binance_spot_api.get_asset_balance(asset=symbol2)['free'])
         change2 = final2 - initial2

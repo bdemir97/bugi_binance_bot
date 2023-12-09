@@ -11,7 +11,7 @@ def send_message(message):
     for TELEGRAM_USER_ID in TELEGRAM_USER_ID_LIST:
         for attempt in range(5):
             try:
-                payload = {"chat_id": TELEGRAM_USER_ID, "text": message, "parse_mode": "MarkdownV2"}
+                payload = {"chat_id": TELEGRAM_USER_ID, "text": message, "parse_mode": "Markdown"}
                 response = requests.post(url, json=payload)
                 response.raise_for_status() 
                 break 

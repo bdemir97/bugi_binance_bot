@@ -36,17 +36,17 @@ def log_trade(mongodb, type, status, amount1, price, initial1, initial2, wallet1
     
     real_pnl = pnl2 + (pnl1*price)
     #total_pnl = pnl2 + ((wallet1*price) - (INITIAL_CAPITAL1*INITIAL_PRICE1))
-    log_info(f"{type} Order Filled!\n"
+
+    log_info(f"*{type}* Order Filled!\n"
              f"{round(amount1, 3)} {SYMBOL1} @{price}\n"
              f"Commission Paid: {round(commission_paid, 3)} {comission_asset}\n"
-             f"**BALANCE:** {round(wallet1,3)} {SYMBOL1} | {round(wallet2,3)} {SYMBOL2}\n"
-             f"**Realized P&L:** {round(real_pnl, 3)} {SYMBOL2}")
+             f"*BALANCE:* {round(wallet1,3)} {SYMBOL1} | {round(wallet2,3)} {SYMBOL2}\n"
+             f"*Realized P&L:* {round(real_pnl, 3)} {SYMBOL2}")
 
-def log_last(mongodb, parity, type, wallet):
+def log_last(mongodb, parity, type, wallet, price):
     last_transaction = mongodb.trade_history.last_transaction.find_one({}, sort=[('_id', -1)])
 
     if last_transaction:
-        result = mongodb.trade_history.last_transaction.replace_one({'_id': last_transaction['_id']},
-                                                                   {"parity": parity, "type": type, "wallet": wallet})
+        mongodb.trade_history.last_transaction.replace_one({'_id': last_transaction['_id']}, {"parity": parity, "type": type, "wallet": wallet, "price": price})
     else:
-        result = mongodb.trade_history.last_transaction.insert_one({"parity": parity, "type": type, "wallet": wallet})
+        mongodb.trade_history.last_transaction.insert_one({"parity": parity, "type": type, "wallet": wallet, "price": price})

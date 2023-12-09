@@ -28,6 +28,7 @@ try:
     RSI_THRESHOLD = config["RSI_THRESHOLD"]
     SHORT_MA = config["SHORT_MA"]
     LONG_MA = config["LONG_MA"]
+    COMMISSION_RATE = config["COMMISSION_RATE"]
 
     if candle_length == "1m":
         CANDLE_LENGTH = KLINE_INTERVAL_1MINUTE

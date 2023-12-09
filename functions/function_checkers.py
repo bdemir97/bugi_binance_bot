@@ -2,9 +2,9 @@ from datetime import datetime, timedelta
 import logging
 
 from .indicators.indicators import heikin_today, heikin_yesterday, moving_averages, rsi
-from config import VOLATILITY_THRESHOLD, RSI_THRESHOLD, CANDLE_LENGTH
+from config import VOLATILITY_THRESHOLD, RSI_THRESHOLD, CANDLE_LENGTH, COMMISSION_RATE
 
-def calculate_price_change(symbol, binance_spot_api):
+def price_change_candle(symbol, binance_spot_api):
     current_price = float(binance_spot_api.get_ticker(symbol=symbol)['lastPrice'])
 
     end_time = datetime.now()
@@ -20,9 +20,9 @@ def calculate_price_change(symbol, binance_spot_api):
 
     return ((current_price - previous_price) / previous_price) * 100
 
-def sell_decision(symbol1, symbol2, binance_spot_api):
+def sell_decision(symbol1, symbol2, binance_spot_api, last_price):
     symbol = symbol1+symbol2
-    price_change_percentage = calculate_price_change(symbol, binance_spot_api)
+    price_change_percentage = price_change_candle(symbol, binance_spot_api)
 
     if price_change_percentage <= (VOLATILITY_THRESHOLD*-1):
         logging.info(f'Decided to sell {symbol} based on high volatility (Price change: {price_change_percentage}%)')
@@ -40,17 +40,22 @@ def sell_decision(symbol1, symbol2, binance_spot_api):
 
     ma_short, ma_long = moving_averages(symbol, binance_spot_api)
     if ma_short < ma_long:
-        logging.info(f'Decided to sell {symbol} based on moving average crossover.')
-        return True
+        price = float(binance_spot_api.get_symbol_ticker(symbol=symbol)['lastPrice'])
+        change_wrt_last = ((price - last_price) / price) * 100
+        if change_wrt_last > COMMISSION_RATE | change_wrt_last < (VOLATILITY_THRESHOLD*-1):
+            logging.info(f'Decided to sell {symbol} based on moving average crossover.')
+            return True
+        else:
+            logging.info(f'Decided not to sell {symbol} based on %change conditions.')
     else:
         logging.info(f'Decided not to sell {symbol} based on moving averages.')
 
     return False
 
 
-def buy_decision(symbol1, symbol2, binance_spot_api):
+def buy_decision(symbol1, symbol2, binance_spot_api, last_price):
     symbol = symbol1+symbol2
-    price_change_percentage = calculate_price_change(symbol, binance_spot_api)
+    price_change_percentage = price_change_candle(symbol, binance_spot_api)
 
     if price_change_percentage >= VOLATILITY_THRESHOLD:
         logging.info(f'Decided to buy {symbol} based on high volatility (Price change: {price_change_percentage}%)')
@@ -68,8 +73,13 @@ def buy_decision(symbol1, symbol2, binance_spot_api):
     
     ma_short, ma_long = moving_averages(symbol, binance_spot_api)
     if ma_short > ma_long:
-        logging.info(f'Decided to buy {symbol} based on moving average crossover.')
-        return True
+        price = float(binance_spot_api.get_symbol_ticker(symbol=symbol)['lastPrice'])
+        change_wrt_last = ((price - last_price) / price) * 100
+        if change_wrt_last < (COMMISSION_RATE*-1) | change_wrt_last > (VOLATILITY_THRESHOLD):
+            logging.info(f'Decided to buy {symbol} based on moving average crossover.')
+            return True
+        else:
+            logging.info(f'Decided not to buy {symbol} based on %change conditions.')
     else:
         logging.info(f'Decided not to buy {symbol} based on moving averages.')
         

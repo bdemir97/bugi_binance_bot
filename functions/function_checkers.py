@@ -40,7 +40,7 @@ def sell_decision(symbol1, symbol2, binance_spot_api, last_price):
 
     ma_short, ma_long = moving_averages(symbol, binance_spot_api)
     if ma_short < ma_long:
-        price = float(binance_spot_api.get_symbol_ticker(symbol=symbol)['lastPrice'])
+        price = float(binance_spot_api.get_ticker(symbol=symbol)['lastPrice'])
         change_wrt_last = ((price - last_price) / price) * 100
         if change_wrt_last > COMMISSION_RATE | change_wrt_last < (VOLATILITY_THRESHOLD*-1):
             logging.info(f'Decided to sell {symbol} based on moving average crossover.')
@@ -73,7 +73,7 @@ def buy_decision(symbol1, symbol2, binance_spot_api, last_price):
     
     ma_short, ma_long = moving_averages(symbol, binance_spot_api)
     if ma_short > ma_long:
-        price = float(binance_spot_api.get_symbol_ticker(symbol=symbol)['lastPrice'])
+        price = float(binance_spot_api.get_ticker(symbol=symbol)['lastPrice'])
         change_wrt_last = ((price - last_price) / price) * 100
         if change_wrt_last < (COMMISSION_RATE*-1) | change_wrt_last > (VOLATILITY_THRESHOLD):
             logging.info(f'Decided to buy {symbol} based on moving average crossover.')

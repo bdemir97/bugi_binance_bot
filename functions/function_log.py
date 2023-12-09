@@ -38,11 +38,14 @@ def log_trade(mongodb, type, status, amount1, price, initial1, initial2, wallet1
     log_info(f"{type} Order Filled!\n"
              f"{round(amount1, 3)} {SYMBOL1} @{price}\n"
              f"Commission Paid: {round(commission_paid, 3)} {comission_asset}\n"
-             f"**BALANCE:** {wallet1} {SYMBOL1} | {wallet2} {SYMBOL2}\n"
+             f"**BALANCE:** {round(wallet1,3)} {SYMBOL1} | {round(wallet2,3)} {SYMBOL2}\n"
              f"**P&L:** {round(total_pnl, 3)} {SYMBOL2}")
 
 def log_last(mongodb, parity, type, wallet):
-    last_transaction = mongodb.trade_history.last_transaction.find().sort('_id', -1).limit(1).next()
+    last_transaction = mongodb.trade_history.last_transaction.find_one({}, sort=[('_id', -1)])
 
-    result = mongodb.trade_history.last_transaction.replace_one({'_id': last_transaction['_id']}, {"parity": parity,"type": type,"wallet": wallet})
-    print(result)
+    if last_transaction:
+        result = mongodb.trade_history.last_transaction.replace_one({'_id': last_transaction['_id']},
+                                                                   {"parity": parity, "type": type, "wallet": wallet})
+    else:
+        result = mongodb.trade_history.last_transaction.insert_one({"parity": parity, "type": type, "wallet": wallet})

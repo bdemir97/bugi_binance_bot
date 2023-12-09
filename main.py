@@ -1,6 +1,6 @@
 import logging, sys, time
 from binance.client import Client
-
+ 
 from functions.function_buy_sell import buy, sell
 from functions.function_checkers import sell_decision, buy_decision, binance_status
 from functions.function_telegram import send_message
@@ -13,8 +13,8 @@ def init_bot():
     binance_spot_api = Client(api_key=BINANCE_API_KEY, api_secret=BINANCE_SECRET_KEY, requests_params={'timeout': BINANCE_API_TIMEOUT})
     
     logging.info('Initiating bot...')
-    send_message(f"*Komplete Trading Bot* started running!\n"
-                 f"*Initial capitals:* {round(INITIAL_CAPITAL1,3)} {SYMBOL1} & {round(INITIAL_CAPITAL2,3)} {SYMBOL2}")
+    #send_message(f"*Komplete Trading Bot* started running!\n"
+    #             f"*Initial capitals:* {round(INITIAL_CAPITAL1,3)} {SYMBOL1} & {round(INITIAL_CAPITAL2,3)} {SYMBOL2}")
     
 def main():
     logging.basicConfig(level=logging.INFO, format='%(levelname)s %(asctime)s %(message)s', datefmt='%d/%m/%Y %H:%M', handlers=[logging.FileHandler("application.log"), logging.StreamHandler(sys.stdout)])
@@ -52,7 +52,7 @@ def main():
         except Exception as e:
             print(f"An error occurred: {e}")
         
-        time.sleep(10)
+        time.sleep(5)
         
 if __name__ == '__main__':
     main()

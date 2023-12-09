@@ -42,11 +42,14 @@ def sell_decision(symbol1, symbol2, binance_spot_api, last_price):
     if ma_short < ma_long:
         price = float(binance_spot_api.get_ticker(symbol=symbol)['lastPrice'])
         change_wrt_last = ((price - last_price) / price) * 100
-        if change_wrt_last > COMMISSION_RATE | change_wrt_last < (VOLATILITY_THRESHOLD*-1):
+        if change_wrt_last > COMMISSION_RATE:
             logging.info(f'Decided to sell {symbol} based on moving average crossover.')
             return True
+        elif change_wrt_last < (VOLATILITY_THRESHOLD*-1):
+            logging.info(f'Decided to sell {symbol} based on volatility threshold.')
+            return True
         else:
-            logging.info(f'Decided not to sell {symbol} based on %change conditions.')
+            logging.info(f'Decided not to sell {symbol} based on % change conditions.')
     else:
         logging.info(f'Decided not to sell {symbol} based on moving averages.')
 
@@ -75,11 +78,14 @@ def buy_decision(symbol1, symbol2, binance_spot_api, last_price):
     if ma_short > ma_long:
         price = float(binance_spot_api.get_ticker(symbol=symbol)['lastPrice'])
         change_wrt_last = ((price - last_price) / price) * 100
-        if change_wrt_last < (COMMISSION_RATE*-1) | change_wrt_last > (VOLATILITY_THRESHOLD):
+        if change_wrt_last < (COMMISSION_RATE*-1):
             logging.info(f'Decided to buy {symbol} based on moving average crossover.')
             return True
+        elif change_wrt_last > (VOLATILITY_THRESHOLD):
+            logging.info(f'Decided to buy {symbol} based on volatility threshold.')
+            return True
         else:
-            logging.info(f'Decided not to buy {symbol} based on %change conditions.')
+            logging.info(f'Decided not to buy {symbol} based on % change conditions.')
     else:
         logging.info(f'Decided not to buy {symbol} based on moving averages.')
         

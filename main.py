@@ -30,7 +30,7 @@ def main():
             try:
                 last_transaction = collection.find().sort('_id', -1).limit(1).next()
                 type = last_transaction['type']
-                wallet = last_transaction['wallet']
+                wallet = str(last_transaction['wallet'])
             except StopIteration:
                 type = "SELL"
                 wallet = INITIAL_CAPITAL2

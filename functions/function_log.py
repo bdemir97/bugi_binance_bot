@@ -11,7 +11,7 @@ def log_error(message):
     logging.error(message)
     send_message(message)
 
-def log_trade(mongodb, type, status, amount1, price, initial1, initial2, final1, final2, pnl1, pnl2, commission_paid, comission_asset):
+def log_trade(mongodb, type, status, amount1, price, initial1, initial2, wallet1, wallet2, final1, final2, pnl1, pnl2, commission_paid, comission_asset):
     mongodb.trade_history.trades.insert_one({
         "type": type,
         "symbol1": SYMBOL1,
@@ -21,6 +21,8 @@ def log_trade(mongodb, type, status, amount1, price, initial1, initial2, final1,
         "price": price,
         "initial1": initial1,
         "initial2": initial2,
+        "wallet1": wallet1,
+        "wallet2": wallet2,
         "final1": final1,
         "final2": final2,
         "pnl1": pnl1,
@@ -33,15 +35,10 @@ def log_trade(mongodb, type, status, amount1, price, initial1, initial2, final1,
         })
     
     total_pnl = pnl2 + (pnl1*price)
-    if type == "BUY":
-        balance = str(round(pnl1, 3)) + " " + SYMBOL1
-    else:
-        balance = str(round(pnl2, 3)) + " " + SYMBOL2
-
     log_info(f"{type} Order Filled!\n"
              f"{round(amount1, 3)} {SYMBOL1} @{price}\n"
              f"Commission Paid: {round(commission_paid, 3)} {comission_asset}\n"
-             f"**BALANCE:** {balance}\n"
+             f"**BALANCE:** {wallet1} {SYMBOL1} | {wallet2} {SYMBOL2}\n"
              f"**P&L:** {round(total_pnl, 3)} {SYMBOL2}")
 
 def log_last(mongodb, parity, type, wallet):

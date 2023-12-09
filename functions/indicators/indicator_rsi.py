@@ -1,10 +1,10 @@
-from binance.enums import *
 from datetime import datetime
+from config import CANDLE_LENGTH
 
 def calculate_rsi(symbol, num_days, start_time: datetime, end_time: datetime, binance_spot_api):
     klines = binance_spot_api.get_historical_klines(
         symbol=symbol,
-        interval=KLINE_INTERVAL_1DAY,
+        interval=CANDLE_LENGTH,
         start_str=str(int(start_time.timestamp() * 1000)),
         end_str=str(int(end_time.timestamp() * 1000)))
     

@@ -1,10 +1,10 @@
-from binance.enums import *
+from config import CANDLE_LENGTH
 from datetime import datetime
 
 def calculate_heikin_ashi(symbol, start_time: datetime, end_time: datetime, binance_spot_api):
     klines = binance_spot_api.get_historical_klines(
         symbol=symbol,
-        interval=KLINE_INTERVAL_1DAY,
+        interval=CANDLE_LENGTH,
         start_str=str(int(start_time.timestamp() * 1000)),
         end_str=str(int(end_time.timestamp() * 1000)))
     opens = [float(kline[1]) for kline in klines]

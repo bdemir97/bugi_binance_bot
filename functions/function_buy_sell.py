@@ -8,7 +8,7 @@ from config import INITIAL_CAPITAL1, INITIAL_CAPITAL2, DECIMAL1, DECIMAL2
 from .function_utils import get_local_timestamp, round_down
 from .function_log import *
 
-def sell(binance_spot_api, symbol1, symbol2, wallet):
+def sell(binance_spot_api, symbol1, symbol2, wallet, mongodb):
     symbol = symbol1+symbol2
 
     initial1 = float(binance_spot_api.get_asset_balance(asset=symbol1)['free'])
@@ -32,22 +32,20 @@ def sell(binance_spot_api, symbol1, symbol2, wallet):
 
         final1 = float(binance_spot_api.get_asset_balance(asset=symbol1)['free'])
         final2 = float(binance_spot_api.get_asset_balance(asset=symbol2)['free'])
-        change1 = final1 - initial1
         change2 = final2 - initial2
         pnl1 = final1 - INITIAL_CAPITAL1
         pnl2 = final2 - INITIAL_CAPITAL2
 
-        log_info(f"SOLD {round(qty,3)} {symbol1} @{price}\nCommission Paid: {round(commission,3)} {comissionAsset}\n\nBALANCE\n{symbol1}: {round(initial1,2)} > {round(final1,2)} ({round(change1,2)})\n{symbol2}: {round(initial2,2)} > {round(final2,2)} ({round(change2,2)})\n\nP&L\n{symbol1}: {round(pnl1,2)}\n{symbol2}: {round(pnl2,2)} ")
 
-        log_trade(f'{sell_order_response["side"]},{sell_order_response["symbol"]},{sell_order_response["status"]},{price},{qty},{commission},{comissionAsset}')
-        log_last(f'{symbol},SELL,{change2}')
+        log_trade(mongodb, "SELL", sell_order_response["status"], qty, price, initial1, initial2, final1, final2, pnl1, pnl2, commission, comissionAsset)
+        log_last(mongodb,symbol,"SELL",change2)
 
     except (BinanceRequestException, BinanceAPIException, BinanceOrderException, BinanceOrderMinAmountException,
             BinanceOrderMinPriceException, BinanceOrderMinTotalException, BinanceOrderUnknownSymbolException,
             BinanceOrderInactiveSymbolException) as ex:
         log_error('Error on creating the sell order! ' + str(ex.message))
 
-def buy(binance_spot_api, symbol1, symbol2, wallet):
+def buy(binance_spot_api, symbol1, symbol2, wallet, mongodb):
     symbol = symbol1+symbol2
 
     initial1 = float(binance_spot_api.get_asset_balance(asset=symbol1)['free'])
@@ -72,14 +70,11 @@ def buy(binance_spot_api, symbol1, symbol2, wallet):
         final1 = float(binance_spot_api.get_asset_balance(asset=symbol1)['free'])
         final2 = float(binance_spot_api.get_asset_balance(asset=symbol2)['free'])
         change1 = final1 - initial1
-        change2 = final2 - initial2
         pnl1 = final1 - INITIAL_CAPITAL1
         pnl2 = final2 - INITIAL_CAPITAL2
 
-        log_info(f"BOUGHT {qty} {symbol1} @{price}\nCommission Paid: {round(commission,3)} {comissionAsset}\n\nBALANCE\n{symbol1}: {round(initial1,2)} > {round(final1,2)} ({round(change1,2)})\n{symbol2}: {round(initial2,2)} > {round(final2,2)} ({round(change2,2)})\n\nP&L\n{symbol1}: {round(pnl1,2)}\n{symbol2}: {round(pnl2,2)} ")
-
-        log_trade(f'{buy_order_response["side"]},{buy_order_response["symbol"]},{buy_order_response["status"]},{price},{qty},{commission},{comissionAsset}')
-        log_last(f'{symbol},BUY,{change1}')
+        log_trade(mongodb, "BUY", buy_order_response["status"], qty, price, initial1, initial2, final1, final2, pnl1, pnl2, commission, comissionAsset  )
+        log_last(mongodb,symbol,"BUY",change1)
 
     except (BinanceRequestException, BinanceAPIException, BinanceOrderException, BinanceOrderMinAmountException,
             BinanceOrderMinPriceException, BinanceOrderMinTotalException, BinanceOrderUnknownSymbolException,

@@ -1,9 +1,8 @@
 from datetime import datetime, timedelta
 import logging
-from binance.enums import *
 
 from .indicators.indicators import heikin_today, heikin_yesterday, moving_averages, rsi
-from config import VOLATILITY_THRESHOLD, RSI_THRESHOLD
+from config import VOLATILITY_THRESHOLD, RSI_THRESHOLD, CANDLE_LENGTH
 
 def calculate_price_change(symbol, binance_spot_api):
     current_price = float(binance_spot_api.get_ticker(symbol=symbol)['lastPrice'])
@@ -13,7 +12,7 @@ def calculate_price_change(symbol, binance_spot_api):
 
     klines = binance_spot_api.get_historical_klines(
         symbol=symbol,
-        interval=KLINE_INTERVAL_3MINUTE,
+        interval=CANDLE_LENGTH,
         start_str=str(int(start_time.timestamp() * 1000)),
         end_str=str(int(end_time.timestamp() * 1000)))
     

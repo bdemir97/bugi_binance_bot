@@ -34,13 +34,12 @@ def sell(binance_spot_api, symbol1, symbol2, wallet, mongodb):
         price = round(price/count,4)
         final1 = float(binance_spot_api.get_asset_balance(asset=symbol1)['free'])
         final2 = float(binance_spot_api.get_asset_balance(asset=symbol2)['free'])
-        change2 = final2 - initial2
         pnl1 = final1 - INITIAL_CAPITAL1
         pnl2 = final2 - INITIAL_CAPITAL2
 
 
         log_trade(mongodb, "SELL", sell_order_response["status"], qty, price, initial1, initial2, final1, final2, pnl1, pnl2, commission, comissionAsset)
-        log_last(mongodb,symbol,"SELL",change2)
+        log_last(mongodb,symbol,"SELL",pnl2)
 
     except (BinanceRequestException, BinanceAPIException, BinanceOrderException, BinanceOrderMinAmountException,
             BinanceOrderMinPriceException, BinanceOrderMinTotalException, BinanceOrderUnknownSymbolException,
@@ -71,12 +70,11 @@ def buy(binance_spot_api, symbol1, symbol2, wallet, mongodb):
 
         final1 = float(binance_spot_api.get_asset_balance(asset=symbol1)['free'])
         final2 = float(binance_spot_api.get_asset_balance(asset=symbol2)['free'])
-        change1 = final1 - initial1
         pnl1 = final1 - INITIAL_CAPITAL1
         pnl2 = final2 - INITIAL_CAPITAL2
 
         log_trade(mongodb, "BUY", buy_order_response["status"], qty, price, initial1, initial2, final1, final2, pnl1, pnl2, commission, comissionAsset  )
-        log_last(mongodb,symbol,"BUY",change1)
+        log_last(mongodb,symbol,"BUY",pnl1)
 
     except (BinanceRequestException, BinanceAPIException, BinanceOrderException, BinanceOrderMinAmountException,
             BinanceOrderMinPriceException, BinanceOrderMinTotalException, BinanceOrderUnknownSymbolException,

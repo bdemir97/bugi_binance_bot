@@ -1,7 +1,7 @@
 import logging
 from datetime import datetime
 from .function_telegram import send_message
-from config import SYMBOL1, SYMBOL2, INITIAL_CAPITAL1, INITIAL_CAPITAL2
+from config import SYMBOL1, SYMBOL2, INITIAL_CAPITAL1, INITIAL_CAPITAL2, INITIAL_PRICE1
 
 def log_info(message):
     logging.info(message)
@@ -35,11 +35,13 @@ def log_trade(mongodb, type, status, amount1, price, initial1, initial2, wallet1
         })
     
     total_pnl = pnl2 + (pnl1*price)
+    real_pnl = pnl2 + ((wallet1*price) - (INITIAL_CAPITAL1*INITIAL_PRICE1))
     log_info(f"{type} Order Filled!\n"
              f"{round(amount1, 3)} {SYMBOL1} @{price}\n"
              f"Commission Paid: {round(commission_paid, 3)} {comission_asset}\n"
              f"**BALANCE:** {round(wallet1,3)} {SYMBOL1} | {round(wallet2,3)} {SYMBOL2}\n"
-             f"**P&L:** {round(total_pnl, 3)} {SYMBOL2}")
+             f"**P&L:** {round(total_pnl, 3)} {SYMBOL2}\n"
+             f"**Realized P&L:** {round(real_pnl, 3)} {SYMBOL2}")
 
 def log_last(mongodb, parity, type, wallet):
     last_transaction = mongodb.trade_history.last_transaction.find_one({}, sort=[('_id', -1)])

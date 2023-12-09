@@ -15,6 +15,7 @@ try:
     INITIAL_CAPITAL2 = config["INITIAL_CAPITAL2"]
     INITIAL_SPOT1 = config["INITIAL_SPOT1"]
     INITIAL_SPOT2 = config["INITIAL_SPOT2"]
+    INITIAL_PRICE1 = config["INITIAL_PRICE1"]
     SYMBOL1 = config["SYMBOL1"]
     SYMBOL2 = config["SYMBOL2"]
     DECIMAL1 = config["DECIMAL1"]

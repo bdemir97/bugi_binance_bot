@@ -78,7 +78,6 @@ def buy(binance_spot_api, symbol1, symbol2, wallet, mongodb):
         pnl1 = wallet1 - INITIAL_CAPITAL1
         pnl2 = wallet2 - INITIAL_CAPITAL2
 
-
         log_trade(mongodb, "BUY", buy_order_response["status"], qty, price, initial1, initial2, wallet1, wallet2, final1, final2, pnl1, pnl2, commission, comissionAsset)
         log_last(mongodb,symbol,"BUY",wallet1)
 

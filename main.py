@@ -13,7 +13,7 @@ def init_bot():
     binance_spot_api = Client(api_key=BINANCE_API_KEY, api_secret=BINANCE_SECRET_KEY, requests_params={'timeout': BINANCE_API_TIMEOUT})
     
     logging.info('Initiating bot...')
-    send_message("**Komplete Trading Bot** is running...")
+    #send_message("**Komplete Trading Bot** is running...")
     
 def main():
     logging.basicConfig(level=logging.INFO, format='%(levelname)s %(asctime)s %(message)s', datefmt='%d/%m/%Y %H:%M', handlers=[logging.FileHandler("application.log"), logging.StreamHandler(sys.stdout)])

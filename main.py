@@ -34,8 +34,12 @@ def main():
                 wallet = str(last_transaction['wallet'])
                 last_price = last_transaction['price']
             except StopIteration:
-                type = "SELL"
-                wallet = INITIAL_CAPITAL2
+                if INITIAL_CAPITAL2 > 0:
+                    type = "SELL"
+                    wallet = INITIAL_CAPITAL2
+                else:
+                    type = "BUY"
+                    wallet = INITIAL_CAPITAL1
                 last_price = INITIAL_PRICE1
 
             if type == "SELL":

@@ -19,17 +19,19 @@ def sell(binance_spot_api, symbol1, symbol2, wallet, mongodb):
     order_id = 's' + get_local_timestamp()
 
     try:
-        log_info(f'Trying to sell {quantity} {symbol1} at price {sell_price}')
+        log_info(f'Trying to sell {round(quantity,3)} {symbol1} at price {sell_price}')
         sell_order_response = binance_spot_api.create_order( symbol=symbol, side=SIDE_SELL, type=ORDER_TYPE_MARKET, quantity=quantity, newClientOrderId=order_id)
         
-        price = qty = commission = 0
+        price = qty = commission = count = 0
         comissionAsset = ""
         for fill in sell_order_response['fills']:
             price += float(fill['price'])
             qty += float(fill['qty'])
             commission += float(fill['commission'])
             comissionAsset = fill["commissionAsset"]
+            count += 1
 
+        price = price/count
         final1 = float(binance_spot_api.get_asset_balance(asset=symbol1)['free'])
         final2 = float(binance_spot_api.get_asset_balance(asset=symbol2)['free'])
         change2 = final2 - initial2
@@ -56,7 +58,7 @@ def buy(binance_spot_api, symbol1, symbol2, wallet, mongodb):
     order_id = 's' + get_local_timestamp()
 
     try:
-        log_info(f'Trying to buy {quoteOrderQty} {symbol2} worth of {symbol1} at price {buy_price}')
+        log_info(f'Trying to buy {round(quoteOrderQty,3)} {symbol2} worth of {symbol1} at price {buy_price}')
         buy_order_response = binance_spot_api.create_order( symbol=symbol, side=SIDE_BUY, type=ORDER_TYPE_MARKET, quoteOrderQty=quoteOrderQty, newClientOrderId=order_id)
         
         price = qty = commission = 0

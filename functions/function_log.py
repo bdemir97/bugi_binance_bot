@@ -32,13 +32,17 @@ def log_trade(mongodb, type, status, amount1, price, initial1, initial2, final1,
         "datetime": datetime.now()
         })
     
+    sum_pnl2 = pnl2 + (pnl1*price)
+    if type == "BUY":
+        balance = str(round(final1 - initial1, 3)) + " " + SYMBOL1
+    else:
+        balance = str(round(final2 - initial2, 3)) + " " + SYMBOL2
+
     log_info(f"{type} Order Filled!\n"
              f"{round(amount1, 3)} {SYMBOL1} @{price}\n"
              f"Commission Paid: {round(commission_paid, 3)} {comission_asset}\n"
-             f"*BALANCE*\n"
-             f"{SYMBOL1}: {round(final1, 1)} ({round(final1 - initial1, 1)})\n"
-             f"{SYMBOL2}: {round(final2, 1)} ({round(final2 - initial2, 1)})\n"
-             f"*P&L:* {round(pnl1, 1)} {SYMBOL1} | {round(pnl2, 1)} {SYMBOL2}")
+             f"**BALANCE:** {balance}\n"
+             f"**P&L:** {round(sum_pnl2, 3)} {SYMBOL2}")
 
 def log_last(mongodb, parity, type, wallet):
     last_transaction = mongodb.trade_history.last_transaction.find().sort('_id', -1).limit(1).next()

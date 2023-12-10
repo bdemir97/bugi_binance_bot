@@ -16,8 +16,5 @@ def calculate_heikin_ashi(symbol, start_time: datetime, end_time: datetime, bina
     #heikin_high = max(highs[-1], heikin_open, heikin_close)
     #heikin_low = min(lows[-1], heikin_open, heikin_close)
 
-    return {
-        "open": heikin_open,
-        "close": heikin_close
-    }
+    return {"open": heikin_open, "close": heikin_close}
 

@@ -10,15 +10,9 @@ def rsi(symbol, num_days, binance_spot_api, CANDLE_LENGTH):
     start_time = datetime.now() - timedelta(days=num_days)
     return calculate_rsi(symbol, num_days, start_time, end_time, binance_spot_api, CANDLE_LENGTH)
 
-def heikin_today(symbol, binance_spot_api, CANDLE_LENGTH):
+def heikin_ashi(symbol, binance_spot_api, CANDLE_LENGTH, HEIKIN_DURATION):
     end_time = datetime.now()
-    start_time = end_time - timedelta(days=1)
-    candle = calculate_heikin_ashi(symbol, start_time, end_time, binance_spot_api, CANDLE_LENGTH)
-    return candle['close'] - candle['open']
-
-def heikin_yesterday(symbol, binance_spot_api, CANDLE_LENGTH):
-    end_time = datetime.now() - timedelta(days=1)
-    start_time = end_time - timedelta(days=1)
+    start_time = end_time - timedelta(minutes=HEIKIN_DURATION)
     candle = calculate_heikin_ashi(symbol, start_time, end_time, binance_spot_api, CANDLE_LENGTH)
     return candle['close'] - candle['open']
 

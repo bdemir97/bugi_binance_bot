@@ -1,7 +1,7 @@
 from datetime import datetime, timedelta
 import logging
 
-from .indicators.indicators import heikin_today, heikin_yesterday, moving_averages, rsi, dema
+from .indicators.indicators import heikin_ashi, moving_averages, rsi, dema
 from .function_buy_sell import buy, sell
 from config_manager import ConfigManager
 
@@ -35,7 +35,7 @@ def sell_decision(symbol1, symbol2, binance_spot_api, last_price, wallet):
     
     DECISION_ALGORITHM = config_manager.get("DECISION_ALGORITHM")
     if DECISION_ALGORITHM == 1:
-        if rsi(symbol, config_manager.get("RSI_DURATION"), binance_spot_api, config_manager.get("CANDLE_LENGTH")) >= config_manager.get("RSI_THRESHOLD") and heikin_today(symbol, binance_spot_api, config_manager.get("CANDLE_LENGTH")) < 0 and heikin_yesterday(symbol, binance_spot_api, config_manager.get("CANDLE_LENGTH")) < 0:
+        if rsi(symbol, config_manager.get("RSI_DURATION"), binance_spot_api, config_manager.get("CANDLE_LENGTH")) >= config_manager.get("RSI_THRESHOLD_SELL") and heikin_ashi(symbol, binance_spot_api, config_manager.get("CANDLE_LENGTH"),config_manager.get("HEIKIN_DURATION")) < 0:
             ma_short, ma_long = moving_averages(symbol, binance_spot_api, config_manager.get("CANDLE_LENGTH"), config_manager.get("SHORT_MA"), config_manager.get("LONG_MA"))
             if ma_short < ma_long:
                 logging.info(f'Decided to sell {symbol} based on RSI, Heikin Ashi, and moving average crossover.')
@@ -95,7 +95,7 @@ def buy_decision(symbol1, symbol2, binance_spot_api, last_price, wallet):
     
     DECISION_ALGORITHM = config_manager.get("DECISION_ALGORITHM")
     if DECISION_ALGORITHM == 1:
-        if rsi(symbol, config_manager.get("RSI_DURATION"), binance_spot_api, config_manager.get("CANDLE_LENGTH")) >= config_manager.get("RSI_THRESHOLD") and heikin_today(symbol, binance_spot_api, config_manager.get("CANDLE_LENGTH")) < 0 and heikin_yesterday(symbol, binance_spot_api, config_manager.get("CANDLE_LENGTH")) < 0:
+        if rsi(symbol, config_manager.get("RSI_DURATION"), binance_spot_api, config_manager.get("CANDLE_LENGTH")) <= config_manager.get("RSI_THRESHOLD_BUY") and heikin_ashi(symbol, binance_spot_api, config_manager.get("CANDLE_LENGTH"),config_manager.get("HEIKIN_DURATION")) > 0:
             ma_short, ma_long = moving_averages(symbol, binance_spot_api, config_manager.get("CANDLE_LENGTH"), config_manager.get("SHORT_MA"), config_manager.get("LONG_MA"))
             if ma_short < ma_long:
                 logging.info(f'Decided to buy {symbol} based on RSI, Heikin Ashi, and moving average crossover.')

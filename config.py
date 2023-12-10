@@ -28,6 +28,8 @@ try:
     RSI_THRESHOLD = config["RSI_THRESHOLD"]
     SHORT_MA = config["SHORT_MA"]
     LONG_MA = config["LONG_MA"]
+    SHORT_DEMA = config["SHORT_DEMA"]
+    LONG_DEMA = config["LONG_DEMA"]
     COMMISSION_RATE = config["COMMISSION_RATE"]
 
     if candle_length == "1m":

@@ -71,6 +71,7 @@ class ConfigManager:
                 "LONG_DEMA": config["LONG_DEMA"],
                 "COMMISSION_RATE": config["COMMISSION_RATE"],
                 "DECISION_ALGORITHM": config["DECISION_ALGORITHM"],
+                "SLEEP_DURATION": config["SLEEP_DURATION"],
                 "PRICE_CHANGE_CALCULATION": config["PRICE_CHANGE_CALCULATION"]
             }
         except Exception as e:

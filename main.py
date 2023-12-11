@@ -71,6 +71,8 @@ def main():
 
         except Exception as e:
             print(f"An error occurred: {e}")
+
+        time.sleep(config_manager.get("SLEEP_DURATION"))
         
 if __name__ == '__main__':
     main()

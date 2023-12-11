@@ -30,36 +30,49 @@ def sell_decision(symbol1, symbol2, binance_spot_api, last_price, wallet):
     price_change_percentage = price_change_candle(symbol, binance_spot_api, config_manager.get("CANDLE_LENGTH"), config_manager.get("PRICE_CHANGE_CALCULATION"))
     
     if price_change_percentage <= (config_manager.get("VOLATILITY_THRESHOLD")*-1):
-        logging.info(f'Decided to sell {symbol} based on high volatility (Price change: {price_change_percentage}%)')
+        logging.info(f'Decided to sell based on high volatility (Price change: {price_change_percentage}%)')
         return sell(binance_spot_api, symbol1, symbol2, wallet, initial1, initial2)
     
     DECISION_ALGORITHM = config_manager.get("DECISION_ALGORITHM")
     if DECISION_ALGORITHM == 1:
-        if rsi(symbol, config_manager.get("RSI_DURATION"), binance_spot_api, config_manager.get("CANDLE_LENGTH")) >= config_manager.get("RSI_THRESHOLD_SELL") and heikin_ashi(symbol, binance_spot_api, config_manager.get("CANDLE_LENGTH"),config_manager.get("HEIKIN_DURATION")) < 0:
-            ma_short, ma_long = moving_averages(symbol, binance_spot_api, config_manager.get("CANDLE_LENGTH"), config_manager.get("SHORT_MA"), config_manager.get("LONG_MA"))
-            if ma_short < ma_long:
-                logging.info(f'Decided to sell {symbol} based on RSI, Heikin Ashi, and moving average crossover.')
+        if rsi(symbol, config_manager.get("RSI_DURATION"), binance_spot_api, config_manager.get("CANDLE_LENGTH")) >= config_manager.get("RSI_THRESHOLD_SELL"):
+            if heikin_ashi(symbol, binance_spot_api, config_manager.get("CANDLE_LENGTH"),config_manager.get("HEIKIN_DURATION")) < 0:
+                logging.info(f'Decided to sell based on RSI and Heikin Ash.')
                 return sell(binance_spot_api, symbol1, symbol2, wallet, initial1, initial2)
             else:
-                logging.info(f'Decided not to sell {symbol} based on RSI, Heikin Ashi, but moving average still positive.')
-        else:
-            logging.info(f'Decided not to sell {symbol} based on RSI, Heikin Ashi, and other indicators.')
+                logging.info(f'RSI signaling sell but Heikin Ash decided to not sell.')    
+        #else:
+        #    logging.info(f'Decided not to sell based on RSI. Heikin Ashi not checked.')
 
     elif DECISION_ALGORITHM == 2:
+        if rsi(symbol, config_manager.get("RSI_DURATION"), binance_spot_api, config_manager.get("CANDLE_LENGTH")) >= config_manager.get("RSI_THRESHOLD_SELL"):
+            if heikin_ashi(symbol, binance_spot_api, config_manager.get("CANDLE_LENGTH"),config_manager.get("HEIKIN_DURATION")) < 0:
+                ma_short, ma_long = moving_averages(symbol, binance_spot_api, config_manager.get("CANDLE_LENGTH"), config_manager.get("SHORT_MA"), config_manager.get("LONG_MA"))
+                if ma_short < ma_long:
+                    logging.info(f'Decided to sell based on RSI, Heikin Ashi, and MA.')
+                    return sell(binance_spot_api, symbol1, symbol2, wallet, initial1, initial2)
+                else:
+                    logging.info(f'Decided not to sell based on MA.')
+            else:
+                logging.info(f'RSI signaling sell but Heikin Ash decided to not sell. MA not checked.')    
+        #else:
+        #    logging.info(f'Decided not to sell based on RSI. Heikin Ashi and MA not checked.')
+
+    elif DECISION_ALGORITHM == 3:
         dema_short, dema_long = dema(symbol, binance_spot_api, config_manager.get("CANDLE_LENGTH"), config_manager.get("SHORT_DEMA"), config_manager.get("LONG_DEMA"))
         if dema_short < dema_long:
             price = float(binance_spot_api.get_ticker(symbol=symbol)['lastPrice'])
             change_wrt_last = ((price - last_price) / price) * 100
             if change_wrt_last > config_manager.get("COMMISSION_RATE"):
-                logging.info(f'Decided to sell {symbol} based on dema crossover.')
+                logging.info(f'Decided to sell based on DEMA and commission rate.')
                 return sell(binance_spot_api, symbol1, symbol2, wallet, initial1, initial2)
             elif change_wrt_last < (config_manager.get("VOLATILITY_THRESHOLD")*-1):
-                logging.info(f'Decided to sell {symbol} based on volatility threshold.')
+                logging.info(f'Decided to sell based on DEMA and volatility.')
                 return sell(binance_spot_api, symbol1, symbol2, wallet, initial1, initial2)
             else:
-                logging.info(f'Decided not to sell {symbol} based on % change conditions.')
-        else:
-            logging.info(f'Decided not to sell {symbol} based on dema.')
+                logging.info(f'DEMA signaling sell but decided not to sell based on % change.')
+        #else:
+        #    logging.info(f'Decided not to sell based on DEMA. Commission and volatility not checked.')
 
     else:
         ma_short, ma_long = moving_averages(symbol, binance_spot_api, config_manager.get("CANDLE_LENGTH"), config_manager.get("SHORT_MA"), config_manager.get("LONG_MA"))
@@ -67,15 +80,15 @@ def sell_decision(symbol1, symbol2, binance_spot_api, last_price, wallet):
             price = float(binance_spot_api.get_ticker(symbol=symbol)['lastPrice'])
             change_wrt_last = ((price - last_price) / price) * 100
             if change_wrt_last > config_manager.get("COMMISSION_RATE"):
-                logging.info(f'Decided to sell {symbol} based on moving average crossover.')
+                logging.info(f'Decided to sell based on MA and commission rate.')
                 return sell(binance_spot_api, symbol1, symbol2, wallet, initial1, initial2)
             elif change_wrt_last < (config_manager.get("VOLATILITY_THRESHOLD")*-1):
-                logging.info(f'Decided to sell {symbol} based on volatility threshold.')
+                logging.info(f'Decided to sell based on MA and volatility.')
                 return sell(binance_spot_api, symbol1, symbol2, wallet, initial1, initial2)
             else:
-                logging.info(f'Decided not to sell {symbol} based on % change conditions.')
-        else:
-            logging.info(f'Decided not to sell {symbol} based on moving averages.')
+                logging.info(f'MA signaling sell but decided not to sell based on % changes.')
+        #else:
+        #    logging.info(f'Decided not to sell based on MA. Commission and volatility not checked.')
 
     return
 
@@ -90,36 +103,49 @@ def buy_decision(symbol1, symbol2, binance_spot_api, last_price, wallet):
     price_change_percentage = price_change_candle(symbol, binance_spot_api, config_manager.get("CANDLE_LENGTH"), config_manager.get("PRICE_CHANGE_CALCULATION"))
 
     if price_change_percentage >= config_manager.get("VOLATILITY_THRESHOLD"):
-        logging.info(f'Decided to buy {symbol} based on high volatility (Price change: {price_change_percentage}%)')
+        logging.info(f'Decided to buy based on high volatility (Price change: {price_change_percentage}%)')
         return buy(binance_spot_api, symbol1, symbol2, wallet, initial1, initial2)
     
     DECISION_ALGORITHM = config_manager.get("DECISION_ALGORITHM")
     if DECISION_ALGORITHM == 1:
-        if rsi(symbol, config_manager.get("RSI_DURATION"), binance_spot_api, config_manager.get("CANDLE_LENGTH")) <= config_manager.get("RSI_THRESHOLD_BUY") and heikin_ashi(symbol, binance_spot_api, config_manager.get("CANDLE_LENGTH"),config_manager.get("HEIKIN_DURATION")) > 0:
-            ma_short, ma_long = moving_averages(symbol, binance_spot_api, config_manager.get("CANDLE_LENGTH"), config_manager.get("SHORT_MA"), config_manager.get("LONG_MA"))
-            if ma_short < ma_long:
-                logging.info(f'Decided to buy {symbol} based on RSI, Heikin Ashi, and moving average crossover.')
+        if rsi(symbol, config_manager.get("RSI_DURATION"), binance_spot_api, config_manager.get("CANDLE_LENGTH")) <= config_manager.get("RSI_THRESHOLD_BUY"):
+            if heikin_ashi(symbol, binance_spot_api, config_manager.get("CANDLE_LENGTH"),config_manager.get("HEIKIN_DURATION")) > 0:
+                logging.info(f'Decided to buy based on RSI and Heikin Ash.')
                 return buy(binance_spot_api, symbol1, symbol2, wallet, initial1, initial2)
             else:
-                logging.info(f'Decided not to buy {symbol} based on RSI, Heikin Ashi, but moving average still negative.')
-        else:
-            logging.info(f'Decided not to buy {symbol} based on RSI, Heikin Ashi, and other indicators.')
+                logging.info(f'RSI signaling buy but Heikin Ash decided to not buy.')    
+        #else:
+        #    logging.info(f'Decided not to buy based on RSI. Heikin Ashi not checked.')
+
+    elif DECISION_ALGORITHM == 2:
+        if rsi(symbol, config_manager.get("RSI_DURATION"), binance_spot_api, config_manager.get("CANDLE_LENGTH")) <= config_manager.get("RSI_THRESHOLD_BUY"):
+            if heikin_ashi(symbol, binance_spot_api, config_manager.get("CANDLE_LENGTH"),config_manager.get("HEIKIN_DURATION")) > 0:
+                ma_short, ma_long = moving_averages(symbol, binance_spot_api, config_manager.get("CANDLE_LENGTH"), config_manager.get("SHORT_MA"), config_manager.get("LONG_MA"))
+                if ma_short > ma_long:
+                    logging.info(f'Decided to buy based on RSI, Heikin Ashi, and MA.')
+                    return buy(binance_spot_api, symbol1, symbol2, wallet, initial1, initial2)
+                else:
+                    logging.info(f'Decided not to buy based on MA.')
+            else:
+                logging.info(f'RSI signaling buy but Heikin Ash decided to not buy. MA not checked.')    
+        #else:
+        #    logging.info(f'Decided not to buy based on RSI. Heikin Ashi and MA not checked.')
     
-    if DECISION_ALGORITHM == 2:
+    elif DECISION_ALGORITHM == 3:
         dema_short, dema_long = dema(symbol, binance_spot_api, config_manager.get("CANDLE_LENGTH"), config_manager.get("SHORT_DEMA"), config_manager.get("LONG_DEMA"))
         if dema_short > dema_long:
             price = float(binance_spot_api.get_ticker(symbol=symbol)['lastPrice'])
             change_wrt_last = ((price - last_price) / price) * 100
             if change_wrt_last < (config_manager.get("COMMISSION_RATE")*-1):
-                logging.info(f'Decided to buy {symbol} based on dema crossover.')
+                logging.info(f'Decided to buy based on DEMA and commission rate.')
                 return buy(binance_spot_api, symbol1, symbol2, wallet, initial1, initial2)
             elif change_wrt_last > (config_manager.get("VOLATILITY_THRESHOLD")):
-                logging.info(f'Decided to buy {symbol} based on volatility threshold.')
+                logging.info(f'Decided to buy based on DEMA and volatility.')
                 return buy(binance_spot_api, symbol1, symbol2, wallet, initial1, initial2)
             else:
-                logging.info(f'Decided not to buy {symbol} based on % change conditions.')
-        else:
-            logging.info(f'Decided not to buy {symbol} based on dema.')
+                logging.info(f'DEMA signaling buy but decided not to buy based on % change.')
+        #else:
+        #    logging.info(f'Decided not to buy based on DEMA. Commission and volatility not checked.')
     
     else:
         ma_short, ma_long = moving_averages(symbol, binance_spot_api, config_manager.get("CANDLE_LENGTH"), config_manager.get("SHORT_MA"), config_manager.get("LONG_MA"))
@@ -127,15 +153,15 @@ def buy_decision(symbol1, symbol2, binance_spot_api, last_price, wallet):
             price = float(binance_spot_api.get_ticker(symbol=symbol)['lastPrice'])
             change_wrt_last = ((price - last_price) / price) * 100
             if change_wrt_last < (config_manager.get("COMMISSION_RATE")*-1):
-                logging.info(f'Decided to buy {symbol} based on moving average crossover.')
+                logging.info(f'Decided to buy based on MA and commission rate.')
                 return buy(binance_spot_api, symbol1, symbol2, wallet, initial1, initial2)
             elif change_wrt_last > (config_manager.get("VOLATILITY_THRESHOLD")):
-                logging.info(f'Decided to buy {symbol} based on volatility threshold.')
+                logging.info(f'Decided to buy based on MA and volatility.')
                 return buy(binance_spot_api, symbol1, symbol2, wallet, initial1, initial2)
             else:
-                logging.info(f'Decided not to buy {symbol} based on % change conditions.')
-        else:
-            logging.info(f'Decided not to buy {symbol} based on moving averages.')
+                logging.info(f'MA signaling buy but decided not to buy based on % changes.')
+        #else:
+        #    logging.info(f'Decided not to buy based on MA. Commission and volatility not checked.')
 
     return
 

@@ -40,12 +40,11 @@ def log_trade(type, status, amount1, price, initial1, initial2, wallet1, wallet2
     real_pnl = pnl2 + (pnl1*price)
     act_pnl = pnl2 + ((wallet1*price) - (config_manager.get("INITIAL_CAPITAL1")*config_manager.get("INITIAL_PRICE1")))
 
-    log_info(f"*{type}* Order Filled!\n"
-             f"{round(amount1, 3)} {config_manager.get('SYMBOL1')} @{price}\n"
-             f"Commission Paid: {round(commission_paid, 3)} {comission_asset}\n"
-             f"*BALANCE:* {round(wallet1,3)} {config_manager.get('SYMBOL1')} | {round(wallet2,3)} {config_manager.get('SYMBOL2')}\n"
-             f"*Realized P&L:* {round(real_pnl, 3)} {config_manager.get('SYMBOL2')}\n"
-             f"*Actual P&L:* {round(act_pnl, 3)} {config_manager.get('SYMBOL2')}")
+    log_info(f"*{type}* {round(amount1, 3)} {config_manager.get('SYMBOL1')} @{price}\n"
+             f"Commission: {round(commission_paid, 3)} {comission_asset}\n"
+             f"*Balance:* {round(wallet1,3)} {config_manager.get('SYMBOL1')} | {round(wallet2,3)} {config_manager.get('SYMBOL2')}\n"
+             f"*Actual P&L:* {round(act_pnl, 3)} {config_manager.get('SYMBOL2')}\n"
+             f"*Realized P&L:* {round(real_pnl, 3)} {config_manager.get('SYMBOL2')}")
 
 def log_last(parity, type, wallet, price):
     config_manager = ConfigManager.get_instance()

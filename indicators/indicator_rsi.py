@@ -1,6 +1,9 @@
-from datetime import datetime
+from datetime import datetime, timedelta
 
-def calculate_rsi(symbol, num_days, start_time: datetime, end_time: datetime, binance_spot_api, candle_length):
+def calculate_rsi(symbol, num_days, binance_spot_api, candle_length):
+    end_time = datetime.now()
+    start_time = datetime.now() - timedelta(days=num_days)
+
     klines = binance_spot_api.get_historical_klines(
         symbol=symbol,
         interval=candle_length,

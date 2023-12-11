@@ -1,6 +1,9 @@
-from datetime import datetime
+from datetime import datetime, timedelta
 
-def calculate_heikin_ashi(symbol, start_time: datetime, end_time: datetime, binance_spot_api, candle_length):
+def calculate_heikin_ashi(symbol, binance_spot_api, candle_length, HEIKIN_DURATION):
+    end_time = datetime.now()
+    start_time = end_time - timedelta(minutes=HEIKIN_DURATION)
+
     klines = binance_spot_api.get_historical_klines(
         symbol=symbol,
         interval=candle_length,
@@ -16,5 +19,5 @@ def calculate_heikin_ashi(symbol, start_time: datetime, end_time: datetime, bina
     #heikin_high = max(highs[-1], heikin_open, heikin_close)
     #heikin_low = min(lows[-1], heikin_open, heikin_close)
 
-    return {"open": heikin_open, "close": heikin_close}
+    return heikin_close - heikin_open
 

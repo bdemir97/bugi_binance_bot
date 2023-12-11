@@ -28,6 +28,8 @@ class ConfigManager:
                 CANDLE_LENGTH = KLINE_INTERVAL_1MINUTE
             elif config["CANDLE_LENGTH"] =="3m":
                 CANDLE_LENGTH = KLINE_INTERVAL_3MINUTE
+            elif config["CANDLE_LENGTH"] =="5m":
+                CANDLE_LENGTH = KLINE_INTERVAL_5MINUTE
             elif config["CANDLE_LENGTH"] =="15m":
                 CANDLE_LENGTH = KLINE_INTERVAL_15MINUTE
             elif config["CANDLE_LENGTH"] =="30m":

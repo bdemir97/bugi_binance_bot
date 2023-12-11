@@ -1,34 +1,47 @@
-Created By Bugra Demir
+# Crypto Trading Bot
 
-## Config
-There are parameters defined in config table in DB to determine the algorithm. Some of these parameters are:
-    - CURRENT_VERSION: A number for bot to check if there any changes in config. If you want to do a change in configurations, you have to change this number too.
-    - DECISION_ALGORITHM: 
-        1. RSI & Heikin Ashi, 
-        2. RSI & Hekini Ashi & MA Crossover
-        3. DEMA Crossover (w/ commission rate & volatility check)
-        Else. MA Crossover (w/ commission rate & volatility check)
-    - SYMBOL1 & SYMBOL2: The parity to trade(for example MINAUSDT is MINA and USDT)
-    - CANDLE_LENGTH: A interval of the candle sticks you want to do the trade (1m / 3m / 5m / 15m / 30m / 1H / 4H / 1D)
-    - Thresholds such as: Volatility, RSI Buy and Sell, MA Crossovers, DEMA Crossovers, Commission Rate, Price Change % etc...
-    - If you want to re-start the bot, you need to enter:
-        1. INITIAL_CAPITAL1 & 2:The amounts of Symbol1 & Symbol2 you want to trade with
-        2. INITIAL_SPOT1 & 2:The amounts of Symbol1 & Symbol2 you have in your spot wallet
-        3. INITIAL_PRICE: The value of parity at the time you start the bot
-        4. You need to clear the last_transaction table
-    - BINANCE_API_KEY and BINANCE_SECRET_KEY to access your wallet through API
-    - MONGODB_URI to access mongodb tables
-    
-Last Transaction is written into file last_transaction table in db, to keep track of the trade order. 
-DECIMAL1 & 2: Check the minimum required amount to trade for each parity, otherwise you will get NOTIONAL Error from API.
+**Created By: Bugra Demir**
 
-## Telegram Config
+## Configuration
+
+The algorithm's behavior is determined by parameters defined in the config table within the database. Key parameters include:
+
+- **CURRENT_VERSION:** A number used for the bot to check for changes in the configuration. When making adjustments to configurations, update this number.
+
+- **DECISION_ALGORITHM:**
+    1. RSI & Heikin Ashi
+    2. RSI & Heikin Ashi & MA Crossover
+    3. DEMA Crossover (with commission rate & volatility check)
+    Else. MA Crossover (with commission rate & volatility check)
+
+- **SYMBOL1 & SYMBOL2:** The trading pair (e.g., MINA/USDT).
+
+- **CANDLE_LENGTH:** The interval of the candlesticks for trading (1m / 3m / 5m / 15m / 30m / 1H / 4H / 1D).
+
+- **Thresholds:** Including Volatility, RSI Buy and Sell, MA Crossovers, DEMA Crossovers, Commission Rate, Price Change %, etc.
+
+- **Restarting the Bot:**
+    1. **INITIAL_CAPITAL1 & 2:** Amounts of Symbol1 & Symbol2 for trading.
+    2. **INITIAL_SPOT1 & 2:** Amounts of Symbol1 & Symbol2 in your spot wallet.
+    3. **INITIAL_PRICE:** The value of the trading pair at the time you start the bot.
+    4. Clear the last_transaction table.
+
+- **API Keys:**
+    - **BINANCE_API_KEY and BINANCE_SECRET_KEY:** Credentials to access your Binance wallet through the API.
+    - **MONGODB_URI:** URI to access MongoDB tables.
+
+**Last Transaction:** Recorded in the last_transaction table in the database to track trade orders.
+
+**DECIMAL1 & 2:** Check the minimum required amount to trade for each pair to avoid NOTIONAL errors from the API.
+
+## Telegram Configuration
+
 1. Create a Telegram bot using [@botfather](https://t.me/botfather).
-2. Get your Telegram user ID, using [@userinfobot](https://t.me/userinfobot).
-3. Send a message to bot on your phone first.
-4. Set `TELEGRAM_API_KEY`, `SEND_TELEGRAM_MESSAGE` and `TELEGRAM_USER_ID_LIST` in config DB table.
+2. Obtain your Telegram user ID using [@userinfobot](https://t.me/userinfobot).
+3. Send a message to the bot on your phone first.
+4. Set `TELEGRAM_API_KEY`, `SEND_TELEGRAM_MESSAGE`, and `TELEGRAM_USER_ID_LIST` in the config database table.
 
-## To-do
+## To-Do
+
 - Add more indicators to `indicators.py`.
-- Fine tune buying and selling strategies.
-
+- Fine-tune parameters and buying/selling strategies.

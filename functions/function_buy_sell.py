@@ -1,3 +1,4 @@
+import time
 from binance.enums import *
 from binance.exceptions import (BinanceRequestException, BinanceAPIException, BinanceOrderException,
                                BinanceOrderMinAmountException, BinanceOrderMinPriceException,
@@ -16,7 +17,7 @@ def sell(wallet, initial1, initial2):
     SYMBOL = SYMBOL1+SYMBOL2
     BINANCE_API = config_manager.get("BINANCE_API")
 
-    quantity = round_down(float(wallet),config_manager.get("DECIMAL1"))
+    quantity = round_down(float(wallet),config_manager.get("SYMBOL1_PRECISION"))
     order_id = 's' + get_local_timestamp()
 
     try:
@@ -45,7 +46,8 @@ def sell(wallet, initial1, initial2):
     except (BinanceRequestException, BinanceAPIException, BinanceOrderException, BinanceOrderMinAmountException,
             BinanceOrderMinPriceException, BinanceOrderMinTotalException, BinanceOrderUnknownSymbolException,
             BinanceOrderInactiveSymbolException) as ex:
-        log_error('Error on creating the sell order! ' + str(ex.message))
+        log_error('Error on creating the sell order. ' + str(ex.message) + '. Sleeping for 5 minutes!')
+        time.sleep(300)
 
 def buy(wallet, initial1, initial2):
     config_manager = ConfigManager.get_instance()
@@ -55,7 +57,7 @@ def buy(wallet, initial1, initial2):
     SYMBOL = SYMBOL1+SYMBOL2
     BINANCE_API = config_manager.get("BINANCE_API")
 
-    quoteOrderQty = round_down(float(wallet),config_manager.get("DECIMAL2"))
+    quoteOrderQty = round_down(float(wallet),config_manager.get("SYMBOL2_PRECISION"))
     order_id = 's' + get_local_timestamp()
 
     try:
@@ -84,4 +86,5 @@ def buy(wallet, initial1, initial2):
     except (BinanceRequestException, BinanceAPIException, BinanceOrderException, BinanceOrderMinAmountException,
             BinanceOrderMinPriceException, BinanceOrderMinTotalException, BinanceOrderUnknownSymbolException,
             BinanceOrderInactiveSymbolException) as ex:
-        log_error('Error occurred for the buy order! '+ str(ex.message))
+        log_error('Error occurred for the buy order! '+ str(ex.message) + '. Sleeping for 5 minutes!')
+        time.sleep(300)

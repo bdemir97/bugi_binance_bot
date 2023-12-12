@@ -37,18 +37,18 @@ class ConfigManager:
                 KLINE_INTERVAL = KLINE_INTERVAL_15MINUTE
             elif CANDLE_INTERVAL == 30:
                 KLINE_INTERVAL = KLINE_INTERVAL_30MINUTE
-
-            KLINE_VOLATILITY = int(6 / CANDLE_INTERVAL)
-            KLINE_HEIKIN = int(6 / CANDLE_INTERVAL)
-            KLINE_RSI = int(15 * 1440 / CANDLE_INTERVAL)
-            KLINE_ADX_SHORT = int(25 * 1440 / CANDLE_INTERVAL)
-            KLINE_ADX_LONG = int(50 * 1440 / CANDLE_INTERVAL)
-            KLINE_MA_SHORT = int(7 * 1440 / CANDLE_INTERVAL)
-            KLINE_MA_MID = int(25 * 1440 / CANDLE_INTERVAL)
-            KLINE_MA_LONG = int(50 * 1440 / CANDLE_INTERVAL)
-            KLINE_STREND = int(14 * 1440 / CANDLE_INTERVAL)
             
-
+            candle_per_day = 1440 / CANDLE_INTERVAL
+            KLINE_VOLATILITY = int(config["VOLATILITY_PERIOD"] / CANDLE_INTERVAL)
+            KLINE_HEIKIN = int(config["HEIKIN_PERIOD"] / CANDLE_INTERVAL)
+            KLINE_RSI = int((config["RSI_PERIOD"]+1) * candle_per_day)
+            KLINE_ADX_SHORT = int(config["ADX_SHORT"] * candle_per_day)
+            KLINE_ADX_LONG = int(config["ADX_LONG"] * candle_per_day)
+            KLINE_MA_SHORT = int(config["MA_SHORT"] * candle_per_day)
+            KLINE_MA_MID = int(config["MA_MID"] * candle_per_day)
+            KLINE_MA_LONG = int(config["MA_LONG"] * candle_per_day)
+            KLINE_STREND = int(config["STREND_PERIOD"] * candle_per_day)
+            
             BINANCE_API = Client(api_key=config["BINANCE_API_KEY"], api_secret=config["BINANCE_SECRET_KEY"], requests_params={'timeout': config["BINANCE_API_TIMEOUT"]})
             MAX_PERIOD = max(config["ADX_LONG"], config["MA_LONG"], config["STREND_PERIOD"], config["RSI_PERIOD"])
             end_time = datetime.now()
@@ -58,6 +58,13 @@ class ConfigManager:
                 interval=KLINE_INTERVAL,
                 start_str=str(int(start_time.timestamp() * 1000)),
                 end_str=str(int(end_time.timestamp() * 1000)))
+
+            exchange_info = BINANCE_API.get_exchange_info()
+            symbol_info = next(item for item in exchange_info['symbols'] if item['symbol'] == "MINAUSDT")
+            MIN_TRADE = symbol_info['filters'][6]["minNotional"]
+            MAX_TRADE = symbol_info['filters'][6]["maxNotional"]
+            SYMBOL1_PRECISION = symbol_info['filters'][1]["stepSize"].split('.')[1].find("1")+1
+            SYMBOL2_PRECISION = symbol_info['quotePrecision']
 
             self.config = {
                 "MONGODB_URI": MONGODB_URI,
@@ -83,9 +90,11 @@ class ConfigManager:
                 "INITIAL_PRICE1": config["INITIAL_PRICE1"],
                 "SYMBOL1": config["SYMBOL1"],
                 "SYMBOL2": config["SYMBOL2"],
-                "DECIMAL1": config["DECIMAL1"],
-                "DECIMAL2": config["DECIMAL2"],
-                
+                "MIN_TRADE": MIN_TRADE,
+                "MAX_TRADE": MAX_TRADE,
+                "SYMBOL1_PRECISION": SYMBOL1_PRECISION,
+                "SYMBOL2_PRECISION": SYMBOL2_PRECISION,
+
                 "CANDLE_INTERVAL": config["CANDLE_INTERVAL"],
                 "KLINE_INTERVAL": KLINE_INTERVAL,
                 "RSI_THRESHOLD_BUY": config["RSI_THRESHOLD_BUY"],
@@ -133,13 +142,10 @@ class ConfigManager:
             limit=1,
             end_str=str(int(datetime.now().timestamp() * 1000)))[0]
 
-        if self.config["KLINES"][-1] != latest_kline:
+        if self.config["KLINES"][-1][0] != latest_kline[0]:
             self.config["KLINES"].append(latest_kline)
         
         if len(self.config["KLINES"]) > self.config["KLINES_LEN"]:
             self.config["KLINES"] = self.config["KLINES"][-self.config["KLINES_LEN"]:]
-
-    def fake_update(self):
-        self.config["SYMBOL1"] = "CHANGED"
     
     

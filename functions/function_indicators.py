@@ -1,23 +1,17 @@
 ####################### RSI ############################
-def rsi(klines, period):    
+def rsi(klines): 
     closes = [float(kline[4]) for kline in klines]
     price_changes = [closes[i] - closes[i - 1] for i in range(1, len(closes))]
     
     gains = [change if change > 0 else 0 for change in price_changes]
     losses = [-change if change < 0 else 0 for change in price_changes]
 
-    avg_gain = averages(gains, period)
-    avg_loss = averages(losses, period)
+    avg_gain = sum(gains) / len(gains)
+    avg_loss = sum(losses) / len(losses)
 
     rs = avg_gain / avg_loss if avg_loss != 0 else 0
     rsi = 100 - (100 / (1 + rs))
     return rsi
-
-def averages(data, period):
-    total = 0
-    for i in range(len(data) - period, len(data)):
-        total += data[i]
-    return total / period
 
 #################### HEIKIN ASHI #########################
 def heikin_ashi(klines):
@@ -32,9 +26,9 @@ def heikin_ashi(klines):
     return heikin_close - heikin_open
 
 ############## MOVING AVERAGE CROSSOVER ###################
-def ma(klines, period):
+def ma(klines):
     closes = [float(kline[4]) for kline in klines]
-    ma = sum(closes[(period*-1):]) / period
+    ma = sum(closes) / len(closes)
 
     return ma
 
@@ -47,7 +41,7 @@ def volatility(klines):
     return volatility
 
 ####################### ADX ############################
-def adx(klines, period):    
+def adx(klines, period):  #period = adx_period * 1440 / candle_interval
     high_prices = [float(kline[2]) for kline in klines]
     low_prices = [float(kline[3]) for kline in klines]
     close_prices = [float(kline[4]) for kline in klines]
@@ -78,7 +72,7 @@ def adx(klines, period):
     return adx
 
 ####################### SUPERTREND ############################
-def supertrend(klines, period, multiplier):    
+def supertrend(klines, period, multiplier): #period = strend_period * 1440 / candle_interval
     high_prices = [float(kline[2]) for kline in klines]
     low_prices = [float(kline[3]) for kline in klines]
     close_prices = [float(kline[4]) for kline in klines]

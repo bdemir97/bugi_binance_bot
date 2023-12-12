@@ -25,7 +25,7 @@ def main():
     while True:
         check_for_config_update(config_manager)
 
-        if not binance_status(config_manager.get("BINANCE_API")):
+        if not binance_status(config_manager):
             time.sleep(1)
             continue
         
@@ -35,7 +35,7 @@ def main():
 
             try:
                 last_transaction = collection.find().sort('_id', -1).limit(1).next()
-                transaction_type = last_transaction['type']
+                last_transaction_type = last_transaction['type']
                 wallet = str(last_transaction['wallet'])
                 last_price = last_transaction['price']
             except StopIteration:
@@ -43,17 +43,17 @@ def main():
                 initial_capital2 = config_manager.get("INITIAL_CAPITAL2")
                 initial_price1 = config_manager.get("INITIAL_PRICE1")
                 if initial_capital2 > 0:
-                    transaction_type = "SELL"
+                    last_transaction_type = "SELL"
                     wallet = initial_capital2
                 else:
-                    transaction_type = "BUY"
+                    last_transaction_type = "BUY"
                     wallet = initial_capital1
                 last_price = initial_price1
 
-            if transaction_type == "SELL":
-                buy_decision(config_manager, last_price, wallet)
-            if transaction_type == "BUY":
-                sell_decision(config_manager, last_price, wallet)
+            if last_transaction_type == "SELL":
+                buy_decision(config_manager, wallet, last_price)
+            if last_transaction_type == "BUY":
+                sell_decision(config_manager, wallet, last_price)
 
         except Exception as e:
             print(f"An error occurred: {e}")

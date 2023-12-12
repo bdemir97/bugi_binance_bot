@@ -1,3 +1,4 @@
+import logging
 from binance.enums import *
 from pymongo.mongo_client import MongoClient
 from pymongo.server_api import ServerApi
@@ -21,6 +22,8 @@ class ConfigManager:
             self.load_config()
 
     def load_config(self):
+        logging.info("Loading the configurations!")
+
         MONGODB_URI = "mongodb+srv://idemir:Bugra07.@cryptotradebot.w9yryxn.mongodb.net/?retryWrites=true&w=majority"
         try:
             mongodb = MongoClient(MONGODB_URI, server_api=ServerApi('1'))

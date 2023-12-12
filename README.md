@@ -6,19 +6,17 @@
 
 The algorithm's behavior is determined by parameters defined in the config table within the database. Key parameters include:
 
-- `CURRENT_VERSION`: A number used for the bot to check for changes in the configuration. When making adjustments to configurations, update this number.
+- `CURRENT_VERSION`: A boolean used for the bot to check for changes in the configuration. When making adjustments to configurations, update this number.
 
 - `DECISION_ALGORITHM`:
     1. RSI & Heikin Ashi
-    2. RSI & Heikin Ashi & MA Crossover
-    3. DEMA Crossover (with commission rate & volatility check)
-    4. MA Crossover (with commission rate & volatility check)
+    2. To be added
 
-- `SYMBOL1` & `SYMBOL2`: The trading pair (e.g., MINA/USDT).
+- `SYMBOL1` & `SYMBOL2`: The trading pair (e.g., MINA and USDT).
 
-- `CANDLE_LENGTH`: The interval of the candlesticks for trading (1m / 3m / 5m / 15m / 30m / 1H / 4H / 1D).
+- `CANDLE_INTERVAL`: The interval of the candlesticks for trading up to 30 minutes as integer (1 / 3 / 5 / 15 / 30).
 
-- **Thresholds:** Including Volatility, RSI Buy and Sell, MA Crossovers, DEMA Crossovers, Commission Rate, Price Change %, etc.
+- **Thresholds & Periods:** Including Volatility, Heikin Ashi, RSI Buy and Sell, ADX, MA Crossovers and Supertrend.
 
 - **Restarting the Bot:**
     1. `INITIAL_CAPITAL1` & `INITIAL_CAPITAL2`: Amounts of Symbol1 & Symbol2 for trading.

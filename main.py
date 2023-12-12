@@ -1,20 +1,7 @@
 import logging, sys, time
-from binance.client import Client
-from functions.function_checkers import sell_decision, buy_decision, binance_status
+from functions.function_decision import sell_decision, buy_decision, binance_status
 from functions.function_telegram import send_message
 from config_manager import ConfigManager
-
-def init_bot(config_manager):
-    global binance_spot_api
-    binance_api_key = config_manager.get("BINANCE_API_KEY")
-    binance_secret_key = config_manager.get("BINANCE_SECRET_KEY")
-    binance_api_timeout = config_manager.get("BINANCE_API_TIMEOUT")
-        
-    binance_spot_api = Client(api_key=binance_api_key, api_secret=binance_secret_key, requests_params={'timeout': binance_api_timeout})
-    
-    logging.info('Initiating bot...')
-    #send_message(f"*Komplete Trading Bot* started running!\n"
-    #             f"*Initial capitals:* {round(INITIAL_CAPITAL1,3)} {SYMBOL1} & {round(INITIAL_CAPITAL2,3)} {SYMBOL2}")
 
 def check_for_config_update(config_manager):
     try:
@@ -32,12 +19,13 @@ def check_for_config_update(config_manager):
 def main():
     logging.basicConfig(level=logging.INFO, format='%(levelname)s %(asctime)s %(message)s', datefmt='%d/%m/%Y %H:%M', handlers=[logging.FileHandler("application.log"), logging.StreamHandler(sys.stdout)])
     config_manager = ConfigManager.get_instance()
-    init_bot(config_manager)
+    #send_message(f"*Komplete Trading Bot* started running!\n"
+    #             f"*Initial capitals:* {round(INITIAL_CAPITAL1,3)} {SYMBOL1} & {round(INITIAL_CAPITAL2,3)} {SYMBOL2}")
 
     while True:
         check_for_config_update(config_manager)
 
-        if not binance_status(binance_spot_api):
+        if not binance_status(config_manager.get("BINANCE_API")):
             time.sleep(1)
             continue
         
@@ -62,12 +50,10 @@ def main():
                     wallet = initial_capital1
                 last_price = initial_price1
 
-            symbol1 = config_manager.get("SYMBOL1")
-            symbol2 = config_manager.get("SYMBOL2")
             if transaction_type == "SELL":
-                buy_decision(symbol1, symbol2, binance_spot_api, last_price, wallet)
+                buy_decision(config_manager, last_price, wallet)
             if transaction_type == "BUY":
-                sell_decision(symbol1, symbol2, binance_spot_api, last_price, wallet)
+                sell_decision(config_manager, last_price, wallet)
 
         except Exception as e:
             print(f"An error occurred: {e}")

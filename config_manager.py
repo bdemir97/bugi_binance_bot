@@ -50,7 +50,7 @@ class ConfigManager:
             
 
             BINANCE_API = Client(api_key=config["BINANCE_API_KEY"], api_secret=config["BINANCE_SECRET_KEY"], requests_params={'timeout': config["BINANCE_API_TIMEOUT"]})
-            MAX_PERIOD = max(config["ADX_LONG"], config["MA_LONG"], config["SUPERTREND_PERIOD"], config["RSI_PERIOD"])
+            MAX_PERIOD = max(config["ADX_LONG"], config["MA_LONG"], config["STREND_PERIOD"], config["RSI_PERIOD"])
             end_time = datetime.now()
             start_time = datetime.now() - timedelta(days=MAX_PERIOD)
             KLINES = BINANCE_API.get_historical_klines(

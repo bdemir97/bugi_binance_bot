@@ -37,7 +37,7 @@ def ma(klines):
 
     return ma
 
-############## VOLATILITY CALCULATION ################
+############## VOLATILITY CALCULATION ####################
 def volatility(klines):    
     previous_price = float(klines[0][1])
     current_price = float(klines[-1][4])
@@ -45,39 +45,57 @@ def volatility(klines):
     
     return volatility
 
-####################### ADX ############################
-def adx(klines, period):  #period = adx_period * 1440 / candle_interval
-    high_prices = [float(kline[2]) for kline in klines]
-    low_prices = [float(kline[3]) for kline in klines]
-    close_prices = [float(kline[4]) for kline in klines]
-    
-    true_range = []
-    for i in range(1, len(klines)):
-        tr1 = max(high_prices[i] - low_prices[i], abs(high_prices[i] - close_prices[i - 1]))
-        tr2 = abs(low_prices[i] - close_prices[i - 1])
-        true_range.append(max(tr1, tr2))
+################## SMOOTHED ADX ##########################
+def adx(klines, period):
+    kline_size = len(klines)
+    tr_list = []
+    dm_plus_list = []
+    dm_minus_list = []
+    dx_list = []
 
-    positive_dm = [max(high_prices[i] - high_prices[i - 1], 0) if high_prices[i] - high_prices[i - 1] > low_prices[i - 1] - low_prices[i] else 0 for i in range(1, len(klines))]
-    negative_dm = [max(low_prices[i - 1] - low_prices[i], 0) if low_prices[i - 1] - low_prices[i] > high_prices[i] - high_prices[i - 1] else 0 for i in range(1, len(klines))]
+    for i in range(1, kline_size):
+        high = float(klines[i][2])
+        low = float(klines[i][3])
+        close_prev = float(klines[i - 1][4])
 
-    atr = [0] * len(true_range)
-    atr[period] = sum(true_range[:period + 1]) / period
-    for i in range(period + 1, len(true_range)):
-        atr[i] = (atr[i - 1] * (period - 1) + true_range[i]) / period
+        # True Range
+        tr = max(high - low, abs(high - close_prev), abs(low - close_prev))
+        tr_list.append(tr)
 
-    positive_di = [100 * sum(positive_dm[:i]) / atr[i] for i in range(1, len(klines) - 1)]
-    negative_di = [100 * sum(negative_dm[:i]) / atr[i] for i in range(1, len(klines) - 1)]
-    dx = [100 * abs(positive_di[i] - negative_di[i]) / (positive_di[i] + negative_di[i]) for i in range(len(positive_di))]
+        # Directional Movements
+        dm_plus = max(high - float(klines[i - 1][2]), 0) if high - float(klines[i - 1][2]) > float(klines[i - 1][3]) - low else 0
+        dm_minus = max(float(klines[i - 1][3]) - low, 0) if float(klines[i - 1][3]) - low > high - float(klines[i - 1][2]) else 0
 
-    adx = [0] * len(dx)
-    adx[period] = sum(dx[:period + 1]) / period
-    for i in range(period + 1, len(dx)):
-        adx[i] = (adx[i - 1] * (period - 1) + dx[i]) / period
+        dm_plus_list.append(dm_plus)
+        dm_minus_list.append(dm_minus)
 
-    return adx
+    # Initial Averages
+    smoothed_tr = sum(tr_list[:period])
+    smoothed_dm_plus = sum(dm_plus_list[:period])
+    smoothed_dm_minus = sum(dm_minus_list[:period])
+
+    for i in range(period, len(klines)):
+        smoothed_tr = (smoothed_tr - (smoothed_tr / period)) + tr_list[i - 1]
+        smoothed_dm_plus = (smoothed_dm_plus - (smoothed_dm_plus / period)) + dm_plus_list[i - 1]
+        smoothed_dm_minus = (smoothed_dm_minus - (smoothed_dm_minus / period)) + dm_minus_list[i - 1]
+
+        di_plus = 100 * (smoothed_dm_plus / smoothed_tr)
+        di_minus = 100 * (smoothed_dm_minus / smoothed_tr)
+
+        dx = 100 * abs(di_plus - di_minus) / (di_plus + di_minus)
+        dx_list.append(dx)
+
+    # Smoothing the DX values for ADX
+    adx_list = [dx_list[0]]  
+    for dx in dx_list[1:]:
+        adx_list.append((adx_list[-1] * (period-1) + dx) / period)
+
+    adx = sum(adx_list) / len(adx_list) 
+
+    return adx, abs(di_plus) - abs(di_minus)
 
 ####################### SUPERTREND ############################
-def supertrend(klines, period, multiplier): #period = strend_period * 1440 / candle_interval
+def supertrend(klines, period, multiplier): 
     high_prices = [float(kline[2]) for kline in klines]
     low_prices = [float(kline[3]) for kline in klines]
     close_prices = [float(kline[4]) for kline in klines]

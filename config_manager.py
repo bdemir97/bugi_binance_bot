@@ -42,7 +42,7 @@ class ConfigManager:
                 KLINE_INTERVAL = KLINE_INTERVAL_30MINUTE
             
             BINANCE_API = Client(api_key=config["BINANCE_API_KEY"], api_secret=config["BINANCE_SECRET_KEY"], requests_params={'timeout': config["BINANCE_API_TIMEOUT"]})
-            MAX_PERIOD = max(config["ADX_LONG"], config["MA_LONG"], config["STREND_PERIOD"], config["RSI_PERIOD"])
+            MAX_PERIOD = max(config["ADX_PERIOD"]*2, config["MA_LONG"], config["STREND_PERIOD"], config["RSI_PERIOD"])
             end_time = datetime.now()
             start_time = datetime.now() - timedelta(minutes=MAX_PERIOD*(CANDLE_INTERVAL+1))
             KLINES = BINANCE_API.get_historical_klines(
@@ -79,6 +79,7 @@ class ConfigManager:
                 "INITIAL_CAPITAL2": config["INITIAL_CAPITAL2"],
                 "INITIAL_SPOT1": config["INITIAL_SPOT1"],
                 "INITIAL_SPOT2": config["INITIAL_SPOT2"],
+                "INITIAL_AVG_PRICE": config["INITIAL_AVG_PRICE"],
                 "SYMBOL1": config["SYMBOL1"],
                 "SYMBOL2": config["SYMBOL2"],
                 "MIN_TRADE": MIN_TRADE,
@@ -98,8 +99,8 @@ class ConfigManager:
                 "VOLATILITY_THRESHOLD": config["VOLATILITY_THRESHOLD"],
                 "VOLATILITY_PERIOD": config["VOLATILITY_PERIOD"],
                 "LAST_TRADE_THRESHOLD": config["LAST_TRADE_THRESHOLD"],
-                "ADX_SHORT": config["ADX_SHORT"],
-                "ADX_LONG": config["ADX_LONG"],
+                "ADX_THRESHOLD": config["ADX_THRESHOLD"],
+                "ADX_PERIOD": config["ADX_PERIOD"],
                 "STREND_PERIOD": config["STREND_PERIOD"],
                 "STREND_MULT": config["STREND_MULT"],
                 "MAX_PERIOD": MAX_PERIOD,

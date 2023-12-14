@@ -9,7 +9,7 @@ The algorithm's behavior is determined by parameters defined in the config table
 - `CURRENT_VERSION`: A boolean used for the bot to check for changes in the configuration. When making adjustments to configurations, update this number.
 
 - `DECISION_ALGORITHM`:
-    1. RSI & Heikin Ashi
+    1. ADX and RSI
     2. To be added
 
 - `SYMBOL1` & `SYMBOL2`: The trading pair (e.g., MINA and USDT).
@@ -29,8 +29,6 @@ The algorithm's behavior is determined by parameters defined in the config table
     - `MONGODB_URI`: URI to access MongoDB tables.
 
 **Last Transaction:** Recorded in the last_transaction table in the database to track trade orders.
-
-`DECIMAL1` & `DECIMAL2`:** Check the minimum required amount to trade for each pair to avoid NOTIONAL errors from the API.
 
 ## Telegram Configuration
 

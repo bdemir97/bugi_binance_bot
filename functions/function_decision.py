@@ -19,7 +19,8 @@ def sell_decision(config_manager, wallet, last_price):
     LAST_TRADE_THRESHOLD = config_manager.get("LAST_TRADE_THRESHOLD")
     RSI_THRESHOLD = config_manager.get("RSI_THRESHOLD_SELL")
     RSI_PERIOD = config_manager.get("RSI_PERIOD")
-    HEIKIN_PERIOD = config_manager.get("HEIKIN_PERIOD")
+    ADX_PERIOD = config_manager.get("ADX_PERIOD")
+    ADX_THRESHOLD = config_manager.get("ADX_THRESHOLD")
     DECISION_ALGORITHM = config_manager.get("DECISION_ALGORITHM")
 
     volatile_percent = volatility(KLINES[-VOLATILITY_PERIOD:])
@@ -30,18 +31,18 @@ def sell_decision(config_manager, wallet, last_price):
     
     last_trade_change = (KLINES[-1][4]/last_price-1)*100
     if -last_trade_change >= LAST_TRADE_THRESHOLD:
-        logging.info(f'Decided to buy since price passed last trade (Price change: {round(last_trade_change,2)}%)')
-        return buy(wallet, initial1, initial2)
+        logging.info(f'Decided to sell since price passed last trade (Price change: {round(last_trade_change,2)}%)')
+        return sell(wallet, initial1, initial2)
 
     if DECISION_ALGORITHM == 1:
-        curr_rsi = rsi(KLINES[-(RSI_PERIOD+1):])
-        if curr_rsi >= RSI_THRESHOLD:
-            curr_heikin = heikin_ashi(KLINES[-HEIKIN_PERIOD:])
-            if curr_heikin < 0:
-                logging.info(f'Decided to sell based on RSI ({round(curr_rsi,2)}) and Heikin Ash ({round(curr_heikin,2)}).')
+        curr_adx, adx_trend = adx(KLINES[-(ADX_PERIOD*2+1):], ADX_PERIOD)
+        if curr_adx > ADX_THRESHOLD and adx_trend < 0:
+            curr_rsi = rsi(KLINES[-(RSI_PERIOD+1):])
+            if curr_rsi >= RSI_THRESHOLD:
+                logging.info(f'Decided to sell based on ADX ({round(curr_adx,2)}) and RSI ({round(curr_rsi,2)}).')
                 return sell(wallet, initial1, initial2)
             else:
-                logging.info(f'RSI ({round(curr_rsi,2)}) signaling sell but Heikin Ash ({round(curr_heikin,2)}) decided to not sell.')    
+                logging.info(f'ADX ({round(curr_adx,2)}) signaling to sell but RSI ({round(curr_rsi,2)}) decided to not sell.')    
         #else:
         #    logging.info(f'Decided not to sell based on RSI ({round(curr_rsi,2)}). Heikin Ashi ({round(curr_heikin,2)}) not checked.')
 
@@ -63,7 +64,8 @@ def buy_decision(config_manager, wallet, last_price):
     LAST_TRADE_THRESHOLD = config_manager.get("LAST_TRADE_THRESHOLD")
     RSI_THRESHOLD = config_manager.get("RSI_THRESHOLD_BUY")
     RSI_PERIOD = config_manager.get("RSI_PERIOD")
-    HEIKIN_PERIOD = config_manager.get("HEIKIN_PERIOD")+1
+    ADX_PERIOD = config_manager.get("ADX_PERIOD")
+    ADX_THRESHOLD = config_manager.get("ADX_THRESHOLD")
     DECISION_ALGORITHM = config_manager.get("DECISION_ALGORITHM")
 
     volatile_percent = volatility(KLINES[-VOLATILITY_PERIOD:])
@@ -78,16 +80,16 @@ def buy_decision(config_manager, wallet, last_price):
         return buy(wallet, initial1, initial2)
     
     if DECISION_ALGORITHM == 1:
-        curr_rsi = rsi(KLINES[-(RSI_PERIOD+1):])
-        if curr_rsi <= RSI_THRESHOLD:
-            curr_heikin = heikin_ashi(KLINES[-HEIKIN_PERIOD:])
-            if curr_heikin > 0:
-                logging.info(f'Decided to buy based on RSI ({round(curr_rsi,2)}) and Heikin Ash ({round(curr_heikin,2)}).')
+        curr_adx, adx_trend = adx(KLINES[-(ADX_PERIOD*2+1):], ADX_PERIOD)
+        if curr_adx > ADX_THRESHOLD and adx_trend > 0:
+            curr_rsi = rsi(KLINES[-(RSI_PERIOD+1):])
+            if curr_rsi <= RSI_THRESHOLD:
+                logging.info(f'Decided to buy based on ADX ({round(curr_adx,2)}) and RSI ({round(curr_rsi,2)}).')
                 return buy(wallet, initial1, initial2)
             else:
-                logging.info(f'RSI ({round(curr_rsi,2)}) signaling buy but Heikin Ash ({round(curr_heikin,2)}) decided to not buy.')    
+                logging.info(f'ADX ({round(curr_adx,2)}) signaling to buy but RSI ({round(curr_rsi,2)}) decided to not buy.')    
         #else:
-        #    logging.info(f'Decided not to buy based on RSI ({round(curr_rsi,2)}). Heikin Ashi ({round(curr_heikin,2)}) not checked.')
+        #    logging.info(f'Decided not to buy based on ADX ({round(curr_adx,2)}). RSI ({round(curr_rsi,2)}) not checked.')
 
     return
 

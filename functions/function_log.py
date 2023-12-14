@@ -38,7 +38,7 @@ def log_trade(type, status, amount1, price, initial1, initial2, wallet1, wallet2
         })
     
     real_pnl = pnl2 + (pnl1*price)
-    act_pnl = pnl2 + ((wallet1*price) - (config_manager.get("INITIAL_CAPITAL1")*config_manager.get("INITIAL_PRICE1")))
+    act_pnl = pnl2 + ((wallet1*price) - (config_manager.get("INITIAL_CAPITAL1")*config_manager.get("INITIAL_AVG_PRICE")))
 
     log_info(f"*{type}* {round(amount1, 3)} {config_manager.get('SYMBOL1')} @{price}\n"
              f"Commission: {round(commission_paid, 3)} {comission_asset}\n"

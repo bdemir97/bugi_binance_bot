@@ -20,8 +20,8 @@ def main():
     logging.basicConfig(level=logging.INFO, format='%(levelname)s %(asctime)s %(message)s', datefmt='%d/%m/%Y %H:%M', handlers=[logging.FileHandler("application.log"), logging.StreamHandler(sys.stdout)])
     config_manager = ConfigManager.get_instance()
     logging.info("Initiated the trading bot!")
-    #send_message(f"*Komplete Trading Bot* started running!\n"
-    #             f"*Initial capitals:* {round(INITIAL_CAPITAL1,3)} {SYMBOL1} & {round(INITIAL_CAPITAL2,3)} {SYMBOL2}")
+    send_message(f"*Komplete Trading Bot* started running!\n"
+                 f"*Initial capitals:* {round(config_manager.get('INITIAL_CAPITAL1'),3)} {config_manager.get('SYMBOL1')} & {round(config_manager.get('INITIAL_CAPITAL2'),3)} {config_manager.get('SYMBOL2')}")
 
     while True:
         check_for_config_update(config_manager)
@@ -42,14 +42,13 @@ def main():
             except StopIteration:
                 initial_capital1 = config_manager.get("INITIAL_CAPITAL1")
                 initial_capital2 = config_manager.get("INITIAL_CAPITAL2")
-                initial_price1 = config_manager.get("INITIAL_PRICE1")
                 if initial_capital2 > 0:
                     last_transaction_type = "SELL"
                     wallet = initial_capital2
                 else:
                     last_transaction_type = "BUY"
                     wallet = initial_capital1
-                last_price = initial_price1
+                last_price = float(config_manager.get("KLINES")[-1][4])
 
             if last_transaction_type == "SELL":
                 buy_decision(config_manager, wallet, last_price)
@@ -57,7 +56,8 @@ def main():
                 sell_decision(config_manager, wallet, last_price)
 
         except Exception as e:
-            print(f"An error occurred: {e}")
+            print(f"An error occurred: {e}. Sleeping for 5 minutes!")
+            time.sleep(300)
 
         time.sleep(config_manager.get("SLEEP_DURATION"))
         

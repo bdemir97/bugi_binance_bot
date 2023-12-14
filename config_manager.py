@@ -41,21 +41,10 @@ class ConfigManager:
             elif CANDLE_INTERVAL == 30:
                 KLINE_INTERVAL = KLINE_INTERVAL_30MINUTE
             
-            candle_per_day = 1440 / CANDLE_INTERVAL
-            KLINE_VOLATILITY = int(config["VOLATILITY_PERIOD"] / CANDLE_INTERVAL)
-            KLINE_HEIKIN = int(config["HEIKIN_PERIOD"] / CANDLE_INTERVAL)
-            KLINE_RSI = int((config["RSI_PERIOD"]+1) * candle_per_day)
-            KLINE_ADX_SHORT = int(config["ADX_SHORT"] * candle_per_day)
-            KLINE_ADX_LONG = int(config["ADX_LONG"] * candle_per_day)
-            KLINE_MA_SHORT = int(config["MA_SHORT"] * candle_per_day)
-            KLINE_MA_MID = int(config["MA_MID"] * candle_per_day)
-            KLINE_MA_LONG = int(config["MA_LONG"] * candle_per_day)
-            KLINE_STREND = int(config["STREND_PERIOD"] * candle_per_day)
-            
             BINANCE_API = Client(api_key=config["BINANCE_API_KEY"], api_secret=config["BINANCE_SECRET_KEY"], requests_params={'timeout': config["BINANCE_API_TIMEOUT"]})
             MAX_PERIOD = max(config["ADX_LONG"], config["MA_LONG"], config["STREND_PERIOD"], config["RSI_PERIOD"])
             end_time = datetime.now()
-            start_time = datetime.now() - timedelta(days=MAX_PERIOD)
+            start_time = datetime.now() - timedelta(minutes=MAX_PERIOD*(CANDLE_INTERVAL+1))
             KLINES = BINANCE_API.get_historical_klines(
                 symbol=config["SYMBOL1"]+config["SYMBOL2"],
                 interval=KLINE_INTERVAL,
@@ -90,7 +79,6 @@ class ConfigManager:
                 "INITIAL_CAPITAL2": config["INITIAL_CAPITAL2"],
                 "INITIAL_SPOT1": config["INITIAL_SPOT1"],
                 "INITIAL_SPOT2": config["INITIAL_SPOT2"],
-                "INITIAL_PRICE1": config["INITIAL_PRICE1"],
                 "SYMBOL1": config["SYMBOL1"],
                 "SYMBOL2": config["SYMBOL2"],
                 "MIN_TRADE": MIN_TRADE,
@@ -103,25 +91,17 @@ class ConfigManager:
                 "RSI_THRESHOLD_BUY": config["RSI_THRESHOLD_BUY"],
                 "RSI_THRESHOLD_SELL": config["RSI_THRESHOLD_SELL"],
                 "RSI_PERIOD": config["RSI_PERIOD"],
-                "KLINE_RSI": KLINE_RSI,
                 "HEIKIN_PERIOD": config["HEIKIN_PERIOD"],
-                "KLINE_HEIKIN": KLINE_HEIKIN,
                 "MA_SHORT": config["MA_SHORT"],
                 "MA_MID": config["MA_MID"],
                 "MA_LONG": config["MA_LONG"],
-                "KLINE_MA_SHORT": KLINE_MA_SHORT,
-                "KLINE_MA_MID": KLINE_MA_MID,
-                "KLINE_MA_LONG": KLINE_MA_LONG,
                 "VOLATILITY_THRESHOLD": config["VOLATILITY_THRESHOLD"],
                 "VOLATILITY_PERIOD": config["VOLATILITY_PERIOD"],
-                "KLINE_VOLATILITY": KLINE_VOLATILITY,
+                "LAST_TRADE_THRESHOLD": config["LAST_TRADE_THRESHOLD"],
                 "ADX_SHORT": config["ADX_SHORT"],
                 "ADX_LONG": config["ADX_LONG"],
-                "KLINE_ADX_SHORT": KLINE_ADX_SHORT,
-                "KLINE_ADX_LONG": KLINE_ADX_LONG,
                 "STREND_PERIOD": config["STREND_PERIOD"],
                 "STREND_MULT": config["STREND_MULT"],
-                "KLINE_STREND": KLINE_STREND,
                 "MAX_PERIOD": MAX_PERIOD,
 
                 "COMMISSION_RATE": config["COMMISSION_RATE"],
@@ -147,8 +127,7 @@ class ConfigManager:
 
         if self.config["KLINES"][-1][0] != latest_kline[0]:
             self.config["KLINES"].append(latest_kline)
-        
-        if len(self.config["KLINES"]) > self.config["KLINES_LEN"]:
             self.config["KLINES"] = self.config["KLINES"][-self.config["KLINES_LEN"]:]
+           
     
     

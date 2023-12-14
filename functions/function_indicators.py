@@ -1,16 +1,21 @@
-####################### RSI ############################
-def rsi(klines): 
-    closes = [float(kline[4]) for kline in klines]
-    price_changes = [closes[i] - closes[i - 1] for i in range(1, len(closes))]
+from datetime import datetime
+
+############ RSI 14 SMA 14-2 #############################
+def rsi(klines):
+    period = len(klines)
+    closes = [float(kline[4]) for kline in klines][-period:]
+    
+    price_changes = [closes[i]-closes[i-1] for i in range(1, period)]
     
     gains = [change if change > 0 else 0 for change in price_changes]
     losses = [-change if change < 0 else 0 for change in price_changes]
 
-    avg_gain = sum(gains) / len(gains)
-    avg_loss = sum(losses) / len(losses)
+    avg_gain = sum(gains) / (period-1)
+    avg_loss = sum(losses) / (period-1)
 
     rs = avg_gain / avg_loss if avg_loss != 0 else 0
     rsi = 100 - (100 / (1 + rs))
+
     return rsi
 
 #################### HEIKIN ASHI #########################
@@ -20,8 +25,8 @@ def heikin_ashi(klines):
     highs = [float(kline[2]) for kline in klines]
     lows = [float(kline[3]) for kline in klines]
     
-    heikin_open = (opens[-1] + closes[-1]) / 2
-    heikin_close = (opens[-1] + highs[-1] + lows[-1] + closes[-1]) / 4
+    heikin_open = (opens[-2] + closes[-1]) / 2
+    heikin_close = (opens[-2] + highs[-2] + lows[-1] + closes[-1]) / 4
 
     return heikin_close - heikin_open
 
@@ -37,7 +42,7 @@ def volatility(klines):
     previous_price = float(klines[0][1])
     current_price = float(klines[-1][4])
     volatility = ((current_price - previous_price) / previous_price) * 100
-
+    
     return volatility
 
 ####################### ADX ############################

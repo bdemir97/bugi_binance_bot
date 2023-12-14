@@ -20,8 +20,8 @@ def main():
     logging.basicConfig(level=logging.INFO, format='%(levelname)s %(asctime)s %(message)s', datefmt='%d/%m/%Y %H:%M', handlers=[logging.FileHandler("application.log"), logging.StreamHandler(sys.stdout)])
     config_manager = ConfigManager.get_instance()
     logging.info("Initiated the trading bot!")
-    send_message(f"*Komplete Trading Bot* started running!\n"
-                 f"*Initial capitals:* {round(config_manager.get('INITIAL_CAPITAL1'),3)} {config_manager.get('SYMBOL1')} & {round(config_manager.get('INITIAL_CAPITAL2'),3)} {config_manager.get('SYMBOL2')}")
+    #send_message(f"*Komplete Trading Bot* started running!\n"
+    #             f"*Initial capitals:* {round(config_manager.get('INITIAL_CAPITAL1'),3)} {config_manager.get('SYMBOL1')} & {round(config_manager.get('INITIAL_CAPITAL2'),3)} {config_manager.get('SYMBOL2')}")
 
     while True:
         check_for_config_update(config_manager)

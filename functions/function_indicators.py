@@ -1,41 +1,55 @@
-from datetime import datetime
+import pandas as pd
+import numpy as np
+from ta.momentum import RSIIndicator
+from ta.trend import ADXIndicator
 
 ############ RSI 14 SMA 14-2 #############################
 def rsi(klines):
-    period = len(klines)
-    closes = [float(kline[4]) for kline in klines][-period:]
+    columns = ['Open Time', 'Open', 'High', 'Low', 'Close', 'Volume', 'Close Time', 'Quote Asset Volume', 'Number of Trades', 'Taker Buy Base Asset Volume', 'Taker Buy Quote Asset Volume', 'Ignore']
+    df = pd.DataFrame(klines, columns=columns)
+    df['Close'] = pd.to_numeric(df['Close'])
     
-    price_changes = [closes[i]-closes[i-1] for i in range(1, period)]
-    
-    gains = [change if change > 0 else 0 for change in price_changes]
-    losses = [-change if change < 0 else 0 for change in price_changes]
-
-    avg_gain = sum(gains) / (period-1)
-    avg_loss = sum(losses) / (period-1)
-
-    rs = avg_gain / avg_loss if avg_loss != 0 else 0
-    rsi = 100 - (100 / (1 + rs))
-
-    return rsi
+    rsi_indicator = RSIIndicator(df['Close'])
+    return rsi_indicator.rsi().iloc[-1]
 
 #################### HEIKIN ASHI #########################
 def heikin_ashi(klines):
-    opens = [float(kline[1]) for kline in klines]
-    closes = [float(kline[4]) for kline in klines]
-    highs = [float(kline[2]) for kline in klines]
-    lows = [float(kline[3]) for kline in klines]
+    columns = ['Open Time', 'Open', 'High', 'Low', 'Close', 'Volume', 'Close Time', 'Quote Asset Volume', 'Number of Trades', 'Taker Buy Base Asset Volume', 'Taker Buy Quote Asset Volume', 'Ignore']
+    df = pd.DataFrame(klines, columns=columns)
+    df['High'] = pd.to_numeric(df['High'])
+    df['Low'] = pd.to_numeric(df['Low'])
+    df['Close'] = pd.to_numeric(df['Close'])
+    df['Open'] = pd.to_numeric(df['Open'])
+
     
-    heikin_open = (opens[-2] + closes[-1]) / 2
-    heikin_close = (opens[-2] + highs[-2] + lows[-1] + closes[-1]) / 4
+    df['HA_Close'] = (df['Open'] + df['High'] + df['Low'] + df['Close']) / 4
+    df['HA_Open'] = ((df['Open'].shift(1) + df['Close'].shift(1)) / 2).fillna((df['Open'] + df['Close']) / 2)
 
-    return heikin_close - heikin_open
+    if df['HA_Close'].iloc[-1] > df['HA_Open'].iloc[-1] and df['HA_Close'].iloc[-2] < df['HA_Open'].iloc[-2]:
+            return 1
+    elif df['HA_Close'].iloc[-1] < df['HA_Open'].iloc[-1] and df['HA_Close'].iloc[-2] > df['HA_Open'].iloc[-2]:
+            return -1
+    return 0
 
-############## MOVING AVERAGE CROSSOVER ###################
-def ma(klines):
-    closes = [float(kline[4]) for kline in klines]
-    ma = sum(closes) / len(closes)
+############## SMA #############################
+def sma(klines):
+    columns = ['Open Time', 'Open', 'High', 'Low', 'Close', 'Volume', 'Close Time', 'Quote Asset Volume', 'Number of Trades', 'Taker Buy Base Asset Volume', 'Taker Buy Quote Asset Volume', 'Ignore']
+    df = pd.DataFrame(klines, columns=columns)
+    df['Close'] = pd.to_numeric(df['Close'])
 
-    return ma
+    sma = df['Close'].rolling(window=len(klines)).mean().iloc[-1]
+
+    return sma
+
+############## EMA #############################
+def ema(klines):
+    columns = ['Open Time', 'Open', 'High', 'Low', 'Close', 'Volume', 'Close Time', 'Quote Asset Volume', 'Number of Trades', 'Taker Buy Base Asset Volume', 'Taker Buy Quote Asset Volume', 'Ignore']
+    df = pd.DataFrame(klines, columns=columns)
+    df['Close'] = pd.to_numeric(df['Close'])
+
+    ema = df['Close'].ewm(span=len(klines), adjust=False).mean().iloc[-1]
+
+    return ema
 
 ############## VOLATILITY CALCULATION ####################
 def volatility(klines):    
@@ -46,77 +60,59 @@ def volatility(klines):
     return volatility
 
 ################## SMOOTHED ADX ##########################
-def adx(klines, period):
-    kline_size = len(klines)
-    tr_list = []
-    dm_plus_list = []
-    dm_minus_list = []
-    dx_list = []
+def adx(klines):
+    columns = ['Open Time', 'Open', 'High', 'Low', 'Close', 'Volume', 'Close Time', 'Quote Asset Volume', 'Number of Trades', 'Taker Buy Base Asset Volume', 'Taker Buy Quote Asset Volume', 'Ignore']
+    df = pd.DataFrame(klines, columns=columns)
+    df['High'] = pd.to_numeric(df['High'])
+    df['Low'] = pd.to_numeric(df['Low'])
+    df['Close'] = pd.to_numeric(df['Close'])
 
-    for i in range(1, kline_size):
-        high = float(klines[i][2])
-        low = float(klines[i][3])
-        close_prev = float(klines[i - 1][4])
+    adx_indicator = ADXIndicator(df['High'], df['Low'], df['Close'])
+    adx = adx_indicator.adx().iloc[-1]
+    dplus = adx_indicator.adx_pos().iloc[-1]
+    dminus = adx_indicator.adx_neg().iloc[-1]
 
-        # True Range
-        tr = max(high - low, abs(high - close_prev), abs(low - close_prev))
-        tr_list.append(tr)
-
-        # Directional Movements
-        dm_plus = max(high - float(klines[i - 1][2]), 0) if high - float(klines[i - 1][2]) > float(klines[i - 1][3]) - low else 0
-        dm_minus = max(float(klines[i - 1][3]) - low, 0) if float(klines[i - 1][3]) - low > high - float(klines[i - 1][2]) else 0
-
-        dm_plus_list.append(dm_plus)
-        dm_minus_list.append(dm_minus)
-
-    # Initial Averages
-    smoothed_tr = sum(tr_list[:period])
-    smoothed_dm_plus = sum(dm_plus_list[:period])
-    smoothed_dm_minus = sum(dm_minus_list[:period])
-
-    for i in range(period, len(klines)):
-        smoothed_tr = (smoothed_tr - (smoothed_tr / period)) + tr_list[i - 1]
-        smoothed_dm_plus = (smoothed_dm_plus - (smoothed_dm_plus / period)) + dm_plus_list[i - 1]
-        smoothed_dm_minus = (smoothed_dm_minus - (smoothed_dm_minus / period)) + dm_minus_list[i - 1]
-
-        di_plus = 100 * (smoothed_dm_plus / smoothed_tr)
-        di_minus = 100 * (smoothed_dm_minus / smoothed_tr)
-
-        dx = 100 * abs(di_plus - di_minus) / (di_plus + di_minus)
-        dx_list.append(dx)
-
-    # Smoothing the DX values for ADX
-    adx_list = [dx_list[0]]  
-    for dx in dx_list[1:]:
-        adx_list.append((adx_list[-1] * (period-1) + dx) / period)
-
-    adx = sum(adx_list) / len(adx_list) 
-
-    return adx, abs(di_plus) - abs(di_minus)
+    return adx, abs(dplus) - abs(dminus)
 
 ####################### SUPERTREND ############################
+
+def calculate_atr(df, period):
+    high_low = df['High'] - df['Low']
+    high_close = np.abs(df['High'] - df['Close'].shift())
+    low_close = np.abs(df['Low'] - df['Close'].shift())
+    ranges = pd.concat([high_low, high_close, low_close], axis=1)
+    true_range = np.max(ranges, axis=1)
+    atr = true_range.rolling(period).mean()
+    return atr
+
 def supertrend(klines, period, multiplier): 
-    high_prices = [float(kline[2]) for kline in klines]
-    low_prices = [float(kline[3]) for kline in klines]
-    close_prices = [float(kline[4]) for kline in klines]
-
-    atr = [0] * period
-    for i in range(period, len(klines)):
-        tr1 = high_prices[i] - low_prices[i]
-        tr2 = abs(high_prices[i] - close_prices[i - 1])
-        tr3 = abs(low_prices[i] - close_prices[i - 1])
-        true_range = max(tr1, tr2, tr3)
-        atr.append((atr[-1] * (period - 1) + true_range) / period)
-
-    supertrend = [0] * period
-    for i in range(period, len(klines)):
-        upper_band = (high_prices[i] + low_prices[i]) / 2 + multiplier * atr[i]
-        lower_band = (high_prices[i] + low_prices[i]) / 2 - multiplier * atr[i]
-
-        if close_prices[i - 1] <= supertrend[-1]:
-            supertrend.append(min(upper_band, close_prices[i]))
+    columns = ['Open Time', 'Open', 'High', 'Low', 'Close', 'Volume', 'Close Time', 'Quote Asset Volume', 'Number of Trades', 'Taker Buy Base Asset Volume', 'Taker Buy Quote Asset Volume', 'Ignore']
+    df = pd.DataFrame(klines, columns=columns)
+    df['High'] = pd.to_numeric(df['High'])
+    df['Low'] = pd.to_numeric(df['Low'])
+    df['Close'] = pd.to_numeric(df['Close'])
+    
+    hl2 = (df['High'] + df['Low']) / 2
+    atr = calculate_atr(df, period=period)
+    
+    supertrend = pd.Series([float('nan')] * len(df))
+    for i in range(1, len(df)):
+        if df['Close'][i] > supertrend[i - 1]:
+            supertrend[i] = hl2[i] - (multiplier * atr[i])
         else:
-            supertrend.append(max(lower_band, close_prices[i]))
+            supertrend[i] = hl2[i] + (multiplier * atr[i])
+        
+        if supertrend[i] > supertrend[i - 1]:
+            if df['Close'][i] > supertrend[i - 1]:
+                supertrend[i] = max(supertrend[i], supertrend[i - 1])
+        else:
+            if df['Close'][i] < supertrend[i - 1]:
+                supertrend[i] = min(supertrend[i], supertrend[i - 1])
+    
+    if df['Close'].iloc[-1] > supertrend.iloc[-1]:
+            return 1
+    if df['Close'].iloc[-1] < supertrend.iloc[-1]:
+            return -1
 
-    return supertrend
+    return 0
     

@@ -32,7 +32,7 @@ def sell_decision(config_manager, wallet, last_price):
         logging.info(f'Decided to sell based on high volatility (Price change: {round(volatile_percent,2)}%)')
         return sell(wallet, initial1, initial2)
     
-    last_trade_change = (KLINES[-1][4]/last_price-1)*100
+    last_trade_change = (float(KLINES[-1][4])/last_price-1)*100
     if -last_trade_change >= LAST_TRADE_THRESHOLD:
         logging.info(f'Decided to sell since price passed last trade (Price change: {round(last_trade_change,2)}%)')
         return sell(wallet, initial1, initial2)
@@ -41,12 +41,12 @@ def sell_decision(config_manager, wallet, last_price):
         with concurrent.futures.ThreadPoolExecutor() as executor:
             rsi_future = executor.submit(rsi, KLINES[-(RSI_PERIOD+1):])
             heikin_ashi_future = executor.submit(heikin_ashi, KLINES[-(RSI_PERIOD+1):])
-            adx_future = executor.submit(adx, KLINES[-(ADX_PERIOD*2+1):])
-            strend_future = executor.submit(supertrend, KLINES[-(STREND_PERIOD*2+1):], STREND_PERIOD, STREND_MULT)
+            adx_future = executor.submit(adx, KLINES[-(ADX_PERIOD*2):])
+            strend_future = executor.submit(supertrend, KLINES[-STREND_PERIOD:], STREND_PERIOD, STREND_MULT)
 
             curr_rsi = rsi_future.result()
             curr_heikin = heikin_ashi_future.result()
-            curr_adx, adx_trend = adx_future.result()
+            curr_adx = adx_future.result()
             curr_strend = strend_future.result()
 
         sell_count = 0
@@ -61,23 +61,23 @@ def sell_decision(config_manager, wallet, last_price):
             msg += f"HEIKIN: SELL | "
         else: msg += f"HEIKIN: NOT SELL | "
 
-        if curr_adx > ADX_THRESHOLD and adx_trend < 0: 
+        if curr_adx > ADX_THRESHOLD: 
             sell_count += 1
             msg += f"ADX({round(curr_adx,3)}): SELL | "
         else: msg += f"ADX({round(curr_adx,3)}): NOT SELL | "
 
         if curr_strend < 0: 
             sell_count += 1
-            msg += f"SUPERTREND: SELL "
-        else: msg += f"SUPERTREND: NOT SELL "
+            msg += f"SUPERTREND: SELL"
+        else: msg += f"SUPERTREND: NOT SELL"
 
         signal_rate = sell_count/4
         if signal_rate > 0.5:
-            logging.info(f'Decided to sell! {msg}.')
+            logging.info(f'Decided to sell! {msg}')
             return buy(wallet, initial1, initial2)
         
         if signal_rate == 0.5:
-            logging.info(f'Half voted for sell! {msg}.')
+            logging.info(f'Half voted for sell! {msg}')
 
     #logging.info(f'{msg}.')
     return
@@ -119,13 +119,13 @@ def buy_decision(config_manager, wallet, last_price):
         with concurrent.futures.ThreadPoolExecutor() as executor:
             rsi_future = executor.submit(rsi, KLINES[-(RSI_PERIOD+1):])
             heikin_ashi_future = executor.submit(heikin_ashi, KLINES[-(RSI_PERIOD+1):])
-            adx_future = executor.submit(adx, KLINES[-(ADX_PERIOD*2+1):])
-            strend_future = executor.submit(supertrend, KLINES[-(STREND_PERIOD*2+1):], STREND_PERIOD, STREND_MULT)
+            adx_future = executor.submit(adx, KLINES[-(ADX_PERIOD*2):])
+            strend_future = executor.submit(supertrend, KLINES[-STREND_PERIOD:], STREND_PERIOD, STREND_MULT)
 
             curr_rsi = rsi_future.result()
             curr_heikin = heikin_ashi_future.result()
-            curr_adx, adx_trend = adx_future.result()
-            curr_strend = strend_future.result()
+            curr_adx = adx_future.result()
+            curr_strend_p, curr_strend = strend_future.result()
 
         buy_count = 0
         msg = ""
@@ -139,15 +139,15 @@ def buy_decision(config_manager, wallet, last_price):
             msg += f"HEIKIN: BUY | "
         else: msg += f"HEIKIN: NOT BUY | "
 
-        if curr_adx > ADX_THRESHOLD and adx_trend > 0: 
+        if curr_adx > ADX_THRESHOLD: 
             buy_count += 1
             msg += f"ADX({round(curr_adx,3)}): BUY | "
         else: msg += f"ADX({round(curr_adx,3)}): NOT BUY | "
 
         if curr_strend > 0: 
             buy_count += 1
-            msg += f"SUPERTREND: BUY "
-        else: msg += f"SUPERTREND: NOT BUY "
+            msg += f"SUPERTREND({round(curr_strend_p,3)}): BUY"
+        else: msg += f"SUPERTREND({round(curr_strend_p,3)}): NOT BUY"
 
         signal_rate = buy_count/4
         if signal_rate > 0.5:
@@ -155,7 +155,7 @@ def buy_decision(config_manager, wallet, last_price):
             return buy(wallet, initial1, initial2)
         
         if signal_rate == 0.5:
-            logging.info(f'Half voted for buy! {msg}.')
+            logging.info(f'Half voted to buy! {msg}.')
 
     #logging.info(f'{msg}.')
     return

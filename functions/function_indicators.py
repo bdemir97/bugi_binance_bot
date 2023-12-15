@@ -25,9 +25,9 @@ def heikin_ashi(klines):
     df['HA_Close'] = (df['Open'] + df['High'] + df['Low'] + df['Close']) / 4
     df['HA_Open'] = ((df['Open'].shift(1) + df['Close'].shift(1)) / 2).fillna((df['Open'] + df['Close']) / 2)
 
-    if df['HA_Close'].iloc[-1] > df['HA_Open'].iloc[-1] and df['HA_Close'].iloc[-2] < df['HA_Open'].iloc[-2]:
+    if df['HA_Close'].iloc[-1] > df['HA_Open'].iloc[-1]:
             return 1
-    elif df['HA_Close'].iloc[-1] < df['HA_Open'].iloc[-1] and df['HA_Close'].iloc[-2] > df['HA_Open'].iloc[-2]:
+    elif df['HA_Close'].iloc[-1] < df['HA_Open'].iloc[-1]:
             return -1
     return 0
 
@@ -69,10 +69,10 @@ def adx(klines):
 
     adx_indicator = ADXIndicator(df['High'], df['Low'], df['Close'])
     adx = adx_indicator.adx().iloc[-1]
-    dplus = adx_indicator.adx_pos().iloc[-1]
-    dminus = adx_indicator.adx_neg().iloc[-1]
+    #dplus = adx_indicator.adx_pos().iloc[-1]
+    #dminus = adx_indicator.adx_neg().iloc[-1]
 
-    return adx, abs(dplus) - abs(dminus)
+    return adx #, abs(dplus) - abs(dminus)
 
 ####################### SUPERTREND ############################
 
@@ -110,9 +110,9 @@ def supertrend(klines, period, multiplier):
                 supertrend[i] = min(supertrend[i], supertrend[i - 1])
     
     if df['Close'].iloc[-1] > supertrend.iloc[-1]:
-            return 1
+            return supertrend.iloc[-1],1
     if df['Close'].iloc[-1] < supertrend.iloc[-1]:
-            return -1
+            return supertrend.iloc[-1],-1
 
-    return 0
+    return supertrend.iloc[-1],0
     

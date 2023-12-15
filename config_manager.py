@@ -42,7 +42,7 @@ class ConfigManager:
                 KLINE_INTERVAL = KLINE_INTERVAL_30MINUTE
             
             BINANCE_API = Client(api_key=config["BINANCE_API_KEY"], api_secret=config["BINANCE_SECRET_KEY"], requests_params={'timeout': config["BINANCE_API_TIMEOUT"]})
-            MAX_PERIOD = max(config["ADX_PERIOD"]*2, config["MA_LONG"], config["STREND_PERIOD"], config["RSI_PERIOD"])
+            MAX_PERIOD = max((config["ADX_PERIOD"]+1)*2, config["MA_LONG"], (config["STREND_PERIOD"]+1)*2, (config["RSI_PERIOD"]+1)*2)
             end_time = datetime.now()
             start_time = datetime.now() - timedelta(minutes=MAX_PERIOD*(CANDLE_INTERVAL+1))
             KLINES = BINANCE_API.get_historical_klines(
@@ -129,6 +129,7 @@ class ConfigManager:
         if self.config["KLINES"][-1][0] != latest_kline[0]:
             self.config["KLINES"].append(latest_kline)
             self.config["KLINES"] = self.config["KLINES"][-self.config["KLINES_LEN"]:]
-           
-    
+        elif self.config["KLINES"][-1][0] == latest_kline[0] and self.config["KLINES"][-1][4] != latest_kline[4]:
+            self.config["KLINES"][-1] = latest_kline
+            
     

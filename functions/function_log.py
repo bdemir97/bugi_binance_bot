@@ -13,6 +13,10 @@ def log_error(message):
 
 def log_trade(type, status, amount1, price, initial1, initial2, wallet1, wallet2, final1, final2, pnl1, pnl2, commission_paid, comission_asset):
     config_manager = ConfigManager.get_instance()
+    
+    act_pnl = pnl2 + ((wallet1*price) - (config_manager.get("INITIAL_CAPITAL1")*config_manager.get("INITIAL_AVG_PRICE")))
+    real_pnl = pnl2 + (pnl1*price)
+
     config_manager.get("MONGO_DB").trade_history.trades.insert_one({
         "type": type,
         "symbol1": config_manager.get("SYMBOL1"),
@@ -28,6 +32,8 @@ def log_trade(type, status, amount1, price, initial1, initial2, wallet1, wallet2
         "final2": final2,
         "pnl1": pnl1,
         "pnl2": pnl2,
+        "actual_pnl": act_pnl,
+        "real_pnl": real_pnl,
         "commission_paid": commission_paid,
         "comission_asset": comission_asset,
         "initial_capital1": config_manager.get("INITIAL_CAPITAL1"),
@@ -37,9 +43,6 @@ def log_trade(type, status, amount1, price, initial1, initial2, wallet1, wallet2
         "config_version":config_manager.get("CURRENT_VERSION")
         })
     
-    real_pnl = pnl2 + (pnl1*price)
-    act_pnl = pnl2 + ((wallet1*price) - (config_manager.get("INITIAL_CAPITAL1")*config_manager.get("INITIAL_AVG_PRICE")))
-
     log_info(f"*{type}* {round(amount1, 3)} {config_manager.get('SYMBOL1')} @{price}\n"
              f"Commission: {round(commission_paid, 3)} {comission_asset}\n"
              f"*Balance:* {round(wallet1,3)} {config_manager.get('SYMBOL1')} | {round(wallet2,3)} {config_manager.get('SYMBOL2')}\n"

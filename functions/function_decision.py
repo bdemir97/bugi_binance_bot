@@ -32,10 +32,10 @@ def sell_decision(config_manager, wallet, last_price):
         logging.info(f'Decided to sell based on high volatility (Price change: {round(volatile_percent,2)}%)')
         return sell(wallet, initial1, initial2)
     
-    last_trade_change = (float(KLINES[-1][4])/last_price-1)*100
+    """last_trade_change = (float(KLINES[-1][4])/last_price-1)*100
     if -last_trade_change >= LAST_TRADE_THRESHOLD:
         logging.info(f'Decided to sell since price passed last trade (Price change: {round(last_trade_change,2)}%)')
-        return sell(wallet, initial1, initial2)
+        return sell(wallet, initial1, initial2)"""
 
     if DECISION_ALGORITHM == 1:
         with concurrent.futures.ThreadPoolExecutor() as executor:
@@ -47,7 +47,7 @@ def sell_decision(config_manager, wallet, last_price):
             curr_rsi = rsi_future.result()
             curr_heikin = heikin_ashi_future.result()
             curr_adx = adx_future.result()
-            curr_strend = strend_future.result()
+            curr_strend_p, curr_strend = strend_future.result()
 
         sell_count = 0
         msg = ""
@@ -68,13 +68,13 @@ def sell_decision(config_manager, wallet, last_price):
 
         if curr_strend < 0: 
             sell_count += 1
-            msg += f"SUPERTREND: SELL"
-        else: msg += f"SUPERTREND: NOT SELL"
+            msg += f"SUPERTREND({round(curr_strend_p,3)}): SELL"
+        else: msg += f"SUPERTREND({round(curr_strend_p,3)}): NOT SELL"
 
         signal_rate = sell_count/4
         if signal_rate > 0.5:
             logging.info(f'Decided to sell! {msg}')
-            return buy(wallet, initial1, initial2)
+            return sell(wallet, initial1, initial2)
         
         if signal_rate == 0.5:
             logging.info(f'Half voted for sell! {msg}')
@@ -110,10 +110,10 @@ def buy_decision(config_manager, wallet, last_price):
         logging.info(f'Decided to buy based on high volatility (Price change: {round(volatile_percent,2)}%)')
         return buy(wallet, initial1, initial2)
     
-    last_trade_change = (float(KLINES[-1][4])/last_price-1)*100
+    """last_trade_change = (float(KLINES[-1][4])/last_price-1)*100
     if last_trade_change >= LAST_TRADE_THRESHOLD:
         logging.info(f'Decided to buy since price passed last trade (Price change: {round(last_trade_change,2)}%)')
-        return buy(wallet, initial1, initial2)
+        return buy(wallet, initial1, initial2)"""
     
     if DECISION_ALGORITHM == 1:
         with concurrent.futures.ThreadPoolExecutor() as executor:

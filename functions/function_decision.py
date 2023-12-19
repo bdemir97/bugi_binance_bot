@@ -49,35 +49,34 @@ def sell_decision(config_manager, wallet, last_price):
             curr_adx = adx_future.result()
             curr_strend_p, curr_strend = strend_future.result()
 
-        sell_count = 0
+        reversal_count = trend_count = 0
         msg = ""
         if curr_rsi >= RSI_THRESHOLD: 
-            sell_count += 1
-            msg += f"RSI({round(curr_rsi,3)}): SELL | "
-        else: msg += f"RSI({round(curr_rsi,3)}): NOT SELL | "
+            reversal_count += 1
+            msg += f"Rsi({round(curr_rsi,3)})(+) "
+        else: msg += f"Rsi({round(curr_rsi,3)})(-) "
 
         if curr_heikin < 0: 
-            sell_count += 1
-            msg += f"HEIKIN: SELL | "
-        else: msg += f"HEIKIN: NOT SELL | "
+            trend_count += 1
+            msg += f"Heikin:(+) "
+        else: msg += f"Heikin:(-) "
 
         if curr_adx > ADX_THRESHOLD: 
-            sell_count += 1
-            msg += f"ADX({round(curr_adx,3)}): SELL | "
-        else: msg += f"ADX({round(curr_adx,3)}): NOT SELL | "
+            trend_count += 1
+            msg += f"Adx({round(curr_adx,3)}):(+) "
+        else: msg += f"Adx({round(curr_adx,3)}):(-) "
 
         if curr_strend < 0: 
-            sell_count += 1
-            msg += f"SUPERTREND({round(curr_strend_p,3)}): SELL"
-        else: msg += f"SUPERTREND({round(curr_strend_p,3)}): NOT SELL"
+            trend_count += 1
+            msg += f"STrend({round(curr_strend_p,3)}):(+) "
+        else: msg += f"STrend({round(curr_strend_p,3)}):(-) "
 
-        signal_rate = sell_count/4
-        if signal_rate > 0.5:
-            logging.info(f'Decided to sell! {msg}')
+        if reversal_count >= 1 and trend_count >= 2:
+            logging.info(f'Decided to sell! {msg}.')
             return sell(wallet, initial1, initial2)
         
-        if signal_rate == 0.5:
-            logging.info(f'Half voted for sell! {msg}')
+        if reversal_count >= 1 and trend_count < 2:
+            logging.info(f'Trend to sell not reversed yet! {msg}.')
 
     #logging.info(f'{msg}.')
     return
@@ -127,35 +126,34 @@ def buy_decision(config_manager, wallet, last_price):
             curr_adx = adx_future.result()
             curr_strend_p, curr_strend = strend_future.result()
 
-        buy_count = 0
+        reversal_count = trend_count = 0
         msg = ""
         if curr_rsi <= RSI_THRESHOLD: 
-            buy_count += 1
-            msg += f"RSI({round(curr_rsi,3)}): BUY | "
-        else: msg += f"RSI({round(curr_rsi,3)}): NOT BUY | "
+            reversal_count += 1
+            msg += f"Rsi({round(curr_rsi,3)})(+) "
+        else: msg += f"Rsi({round(curr_rsi,3)})(-) "
 
         if curr_heikin > 0: 
-            buy_count += 1
-            msg += f"HEIKIN: BUY | "
-        else: msg += f"HEIKIN: NOT BUY | "
+            trend_count += 1
+            msg += f"Heikin:(+) "
+        else: msg += f"Heikin:(-) "
 
         if curr_adx > ADX_THRESHOLD: 
-            buy_count += 1
-            msg += f"ADX({round(curr_adx,3)}): BUY | "
-        else: msg += f"ADX({round(curr_adx,3)}): NOT BUY | "
+            trend_count += 1
+            msg += f"Adx({round(curr_adx,3)}):(+) "
+        else: msg += f"Adx({round(curr_adx,3)}):(-) "
 
         if curr_strend > 0: 
-            buy_count += 1
-            msg += f"SUPERTREND({round(curr_strend_p,3)}): BUY"
-        else: msg += f"SUPERTREND({round(curr_strend_p,3)}): NOT BUY"
+            trend_count += 1
+            msg += f"STrend({round(curr_strend_p,3)}):(+) "
+        else: msg += f"STrend({round(curr_strend_p,3)}):(-) "
 
-        signal_rate = buy_count/4
-        if signal_rate > 0.5:
+        if reversal_count >= 1 and trend_count >= 2:
             logging.info(f'Decided to buy! {msg}.')
             return buy(wallet, initial1, initial2)
         
-        if signal_rate == 0.5:
-            logging.info(f'Half voted to buy! {msg}.')
+        if reversal_count >= 1 and trend_count < 2:
+            logging.info(f'Trend to buy not reversed yet! {msg}.')
 
     #logging.info(f'{msg}.')
     return

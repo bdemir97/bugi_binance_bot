@@ -39,9 +39,9 @@ def sell_decision(config_manager, wallet, last_price):
 
     if DECISION_ALGORITHM == 1:
         with concurrent.futures.ThreadPoolExecutor() as executor:
-            rsi_future = executor.submit(rsi, KLINES[-(RSI_PERIOD+1):])
+            rsi_future = executor.submit(rsi, KLINES[-(RSI_PERIOD*3+1):])
             heikin_ashi_future = executor.submit(heikin_ashi, KLINES[-(RSI_PERIOD+1):])
-            adx_future = executor.submit(adx, KLINES[-(ADX_PERIOD*2):])
+            adx_future = executor.submit(adx, KLINES[-(ADX_PERIOD*3+1):])
             strend_future = executor.submit(supertrend, KLINES[-STREND_PERIOD:], STREND_PERIOD, STREND_MULT)
 
             curr_rsi = rsi_future.result()
@@ -116,9 +116,9 @@ def buy_decision(config_manager, wallet, last_price):
     
     if DECISION_ALGORITHM == 1:
         with concurrent.futures.ThreadPoolExecutor() as executor:
-            rsi_future = executor.submit(rsi, KLINES[-(RSI_PERIOD*2+1):])
+            rsi_future = executor.submit(rsi, KLINES[-(RSI_PERIOD*3+1):])
             heikin_ashi_future = executor.submit(heikin_ashi, KLINES[-(RSI_PERIOD+1):])
-            adx_future = executor.submit(adx, KLINES[-(ADX_PERIOD*2+1):])
+            adx_future = executor.submit(adx, KLINES[-(ADX_PERIOD*3+1):])
             strend_future = executor.submit(supertrend, KLINES[-STREND_PERIOD:], STREND_PERIOD, STREND_MULT)
 
             curr_rsi = rsi_future.result()

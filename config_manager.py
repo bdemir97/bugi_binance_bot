@@ -42,14 +42,11 @@ class ConfigManager:
                 KLINE_INTERVAL = KLINE_INTERVAL_30MINUTE
             
             BINANCE_API = Client(api_key=config["BINANCE_API_KEY"], api_secret=config["BINANCE_SECRET_KEY"], requests_params={'timeout': config["BINANCE_API_TIMEOUT"]})
-            MAX_PERIOD = max((config["ADX_PERIOD"]+1)*2, config["MA_LONG"], (config["STREND_PERIOD"]+1)*2, (config["RSI_PERIOD"]+1)*2)
-            end_time = datetime.now()
-            start_time = datetime.now() - timedelta(minutes=MAX_PERIOD*(CANDLE_INTERVAL+1))
+
             KLINES = BINANCE_API.get_historical_klines(
                 symbol=config["SYMBOL1"]+config["SYMBOL2"],
                 interval=KLINE_INTERVAL,
-                start_str=str(int(start_time.timestamp() * 1000)),
-                end_str=str(int(end_time.timestamp() * 1000)))
+                limit= 200)
 
             exchange_info = BINANCE_API.get_exchange_info()
             symbol_info = next(item for item in exchange_info['symbols'] if item['symbol'] == "MINAUSDT")
@@ -103,7 +100,6 @@ class ConfigManager:
                 "ADX_PERIOD": config["ADX_PERIOD"],
                 "STREND_PERIOD": config["STREND_PERIOD"],
                 "STREND_MULT": config["STREND_MULT"],
-                "MAX_PERIOD": MAX_PERIOD,
 
                 "COMMISSION_RATE": config["COMMISSION_RATE"],
                 "DECISION_ALGORITHM": config["DECISION_ALGORITHM"],

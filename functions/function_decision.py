@@ -26,11 +26,11 @@ def sell_decision(config_manager, wallet, last_price):
     STREND_MULT = config_manager.get("STREND_MULT")
     DECISION_ALGORITHM = config_manager.get("DECISION_ALGORITHM")
 
-    volatile_percent = volatility(KLINES[-VOLATILITY_PERIOD:])
+    """volatile_percent = volatility(KLINES[-VOLATILITY_PERIOD:])
     
     if volatile_percent <= -VOLATILITY_THRESHOLD:
         logging.info(f'Decided to sell based on high volatility (Price change: {round(volatile_percent,2)}%)')
-        return sell(wallet, initial1, initial2)
+        return sell(wallet, initial1, initial2)"""
     
     """last_trade_change = (float(KLINES[-1][4])/last_price-1)*100
     if -last_trade_change >= LAST_TRADE_THRESHOLD:
@@ -103,11 +103,11 @@ def buy_decision(config_manager, wallet, last_price):
     STREND_MULT = config_manager.get("STREND_MULT")
     DECISION_ALGORITHM = config_manager.get("DECISION_ALGORITHM")
 
-    volatile_percent = volatility(KLINES[-VOLATILITY_PERIOD:])
+    """volatile_percent = volatility(KLINES[-VOLATILITY_PERIOD:])
 
     if volatile_percent >= VOLATILITY_THRESHOLD:
         logging.info(f'Decided to buy based on high volatility (Price change: {round(volatile_percent,2)}%)')
-        return buy(wallet, initial1, initial2)
+        return buy(wallet, initial1, initial2)"""
     
     """last_trade_change = (float(KLINES[-1][4])/last_price-1)*100
     if last_trade_change >= LAST_TRADE_THRESHOLD:
@@ -116,9 +116,9 @@ def buy_decision(config_manager, wallet, last_price):
     
     if DECISION_ALGORITHM == 1:
         with concurrent.futures.ThreadPoolExecutor() as executor:
-            rsi_future = executor.submit(rsi, KLINES[-(RSI_PERIOD+1):])
+            rsi_future = executor.submit(rsi, KLINES[-(RSI_PERIOD*2+1):])
             heikin_ashi_future = executor.submit(heikin_ashi, KLINES[-(RSI_PERIOD+1):])
-            adx_future = executor.submit(adx, KLINES[-(ADX_PERIOD*2):])
+            adx_future = executor.submit(adx, KLINES[-(ADX_PERIOD*2+1):])
             strend_future = executor.submit(supertrend, KLINES[-STREND_PERIOD:], STREND_PERIOD, STREND_MULT)
 
             curr_rsi = rsi_future.result()

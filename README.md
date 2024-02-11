@@ -10,11 +10,11 @@ The algorithm's behavior is determined by parameters defined in the config table
 
 - `DECISION_ALGORITHM`:
     1. ADX and RSI
-    2. To be added
+    4. Ichimoku Cloud
 
 - `SYMBOL1` & `SYMBOL2`: The trading pair (e.g., MINA and USDT).
 
-- `CANDLE_INTERVAL`: The interval of the candlesticks for trading up to 30 minutes as integer (1 / 3 / 5 / 15 / 30).
+- `CANDLE_INTERVAL`: The interval of the candlesticks for trading up to 30 minutes as integer (1 / 3 / 5 / 15 / 30 / 60).
 
 - **Thresholds & Periods:** Including Volatility, Heikin Ashi, RSI Buy and Sell, ADX, MA Crossovers and Supertrend.
 
@@ -22,7 +22,8 @@ The algorithm's behavior is determined by parameters defined in the config table
     1. `INITIAL_CAPITAL1` & `INITIAL_CAPITAL2`: Amounts of Symbol1 & Symbol2 for trading.
     2. `INITIAL_SPOT1` & `INITIAL_SPOT2`: Amounts of Symbol1 & Symbol2 in your spot wallet.
     3. `INITIAL_PRICE`: The value of the trading pair at the time you start the bot.
-    4. Clear the last_transaction table.
+    3. `INITIAL_TRANSACTION`: The first transaction type you want to start with.
+    5. Clear the last_transaction table.
 
 - **API Keys:**
     - `BINANCE_API_KEY` and `BINANCE_SECRET_KEY`: Credentials to access your Binance wallet through the API.

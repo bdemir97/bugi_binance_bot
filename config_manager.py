@@ -3,7 +3,7 @@ from binance.enums import *
 from pymongo.mongo_client import MongoClient
 from pymongo.server_api import ServerApi
 from binance.client import Client
-from datetime import datetime, timedelta
+from datetime import datetime
 
 class ConfigManager:
     _instance = None
@@ -40,6 +40,8 @@ class ConfigManager:
                 KLINE_INTERVAL = KLINE_INTERVAL_15MINUTE
             elif CANDLE_INTERVAL == 30:
                 KLINE_INTERVAL = KLINE_INTERVAL_30MINUTE
+            elif CANDLE_INTERVAL == 60:
+                KLINE_INTERVAL = KLINE_INTERVAL_1HOUR
             
             BINANCE_API = Client(api_key=config["BINANCE_API_KEY"], api_secret=config["BINANCE_SECRET_KEY"], requests_params={'timeout': config["BINANCE_API_TIMEOUT"]})
 
@@ -72,11 +74,12 @@ class ConfigManager:
                 "KLINES": KLINES,
                 "KLINES_LEN": len(KLINES),
 
+                "INITIAL_TRANSACTION": config["INITIAL_TRANSACTION"],
                 "INITIAL_CAPITAL1": config["INITIAL_CAPITAL1"],
                 "INITIAL_CAPITAL2": config["INITIAL_CAPITAL2"],
                 "INITIAL_SPOT1": config["INITIAL_SPOT1"],
                 "INITIAL_SPOT2": config["INITIAL_SPOT2"],
-                "INITIAL_AVG_PRICE": config["INITIAL_AVG_PRICE"],
+                "INITIAL_PRICE": float(KLINES[-1][4]),
                 "SYMBOL1": config["SYMBOL1"],
                 "SYMBOL2": config["SYMBOL2"],
                 "MIN_TRADE": MIN_TRADE,
@@ -100,6 +103,13 @@ class ConfigManager:
                 "ADX_PERIOD": config["ADX_PERIOD"],
                 "STREND_PERIOD": config["STREND_PERIOD"],
                 "STREND_MULT": config["STREND_MULT"],
+
+                "TENKAN_PERIOD": config["TENKAN_PERIOD"],
+                "KIJUN_PERIOD": config["KIJUN_PERIOD"],
+                "SENKOU_PERIOD": config["SENKOU_PERIOD"],
+                "CHIKOU_DISTANCE": config["CHIKOU_DISTANCE"],
+                "ICHIMOKU_SLOPE": config["ICHIMOKU_SLOPE"],
+                "SLOPE_DISTANCE": config["SLOPE_DISTANCE"],
 
                 "COMMISSION_RATE": config["COMMISSION_RATE"],
                 "DECISION_ALGORITHM": config["DECISION_ALGORITHM"],
@@ -127,5 +137,3 @@ class ConfigManager:
             self.config["KLINES"] = self.config["KLINES"][-self.config["KLINES_LEN"]:]
         elif self.config["KLINES"][-1][0] == latest_kline[0] and self.config["KLINES"][-1][4] != latest_kline[4]:
             self.config["KLINES"][-1] = latest_kline
-            
-    

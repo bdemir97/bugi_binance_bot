@@ -11,11 +11,11 @@ def log_error(message):
     logging.error(message)
     send_message(message)
 
-def log_trade(type, status, amount1, price, initial1, initial2, wallet1, wallet2, final1, final2, pnl1, pnl2, commission_paid, comission_asset):
+def log_trade(type, status, amount1, price, initial1, initial2, wallet1, wallet2, final1, final2, pnl1, pnl2, commission_paid, comission_asset, initial_capital1, initial_capital2):
     config_manager = ConfigManager.get_instance()
     
-    act_pnl = pnl2 + ((wallet1*price) - (config_manager.get("INITIAL_CAPITAL1")*config_manager.get("INITIAL_AVG_PRICE")))
-    real_pnl = pnl2 + (pnl1*price)
+    pnl = pnl1*price + pnl2
+    hodl_pnl = initial_capital1*price + initial_capital2
 
     config_manager.get("MONGO_DB").trade_history.trades.insert_one({
         "type": type,
@@ -32,8 +32,8 @@ def log_trade(type, status, amount1, price, initial1, initial2, wallet1, wallet2
         "final2": final2,
         "pnl1": pnl1,
         "pnl2": pnl2,
-        "actual_pnl": act_pnl,
-        "real_pnl": real_pnl,
+        "pnl": pnl,
+        "hodl_pnl": hodl_pnl,
         "commission_paid": commission_paid,
         "comission_asset": comission_asset,
         "initial_capital1": config_manager.get("INITIAL_CAPITAL1"),
@@ -43,11 +43,11 @@ def log_trade(type, status, amount1, price, initial1, initial2, wallet1, wallet2
         "config_version":config_manager.get("CURRENT_VERSION")
         })
     
-    log_info(f"*{type}* {round(amount1, 3)} {config_manager.get('SYMBOL1')} @{price}\n"
-             f"Commission: {round(commission_paid, 3)} {comission_asset}\n"
-             f"*Balance:* {round(wallet1,3)} {config_manager.get('SYMBOL1')} | {round(wallet2,3)} {config_manager.get('SYMBOL2')}\n"
-             f"*Actual P&L:* {round(act_pnl, 3)} {config_manager.get('SYMBOL2')}\n"
-             f"*Realized P&L:* {round(real_pnl, 3)} {config_manager.get('SYMBOL2')}")
+    log_info(f"*{type}* {round(amount1, 2)} {config_manager.get('SYMBOL1')} @{price}\n"
+             f"Commission: {round(commission_paid, 2)} {comission_asset}\n"
+             f"*Balance:* {round(wallet1,2)} {config_manager.get('SYMBOL1')} | {round(wallet2,2)} {config_manager.get('SYMBOL2')}\n"
+             f"*P&L:* {round(pnl, 2)} {config_manager.get('SYMBOL2')}\n"
+             f"*P&L - HODL:* {round(pnl-hodl_pnl, 2)} {config_manager.get('SYMBOL2')}")
 
 def log_last(parity, type, wallet, price):
     config_manager = ConfigManager.get_instance()

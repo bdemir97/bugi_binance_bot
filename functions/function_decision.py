@@ -1,10 +1,8 @@
-import logging
-
-from .function_indicators import rsi, heikin_ashi, sma, ema, volatility, adx, supertrend
+from .function_indicators import rsi, heikin_ashi, adx, supertrend, ichimoku_cloud
 from .function_buy_sell import buy, sell
-import concurrent.futures
+import concurrent.futures, logging
 
-def sell_decision(config_manager, wallet, last_price):
+def sell_decision(config_manager, wallet):
     config_manager.update_klines()
 
     SYMBOL1 = config_manager.get("SYMBOL1")
@@ -15,29 +13,16 @@ def sell_decision(config_manager, wallet, last_price):
     initial2 = float(BINANCE_API.get_asset_balance(asset=SYMBOL2)['free'])
 
     KLINES = config_manager.get("KLINES")
-    VOLATILITY_PERIOD = config_manager.get("VOLATILITY_PERIOD")
-    VOLATILITY_THRESHOLD = config_manager.get("VOLATILITY_THRESHOLD")
-    LAST_TRADE_THRESHOLD = config_manager.get("LAST_TRADE_THRESHOLD")
-    RSI_THRESHOLD = config_manager.get("RSI_THRESHOLD_SELL")
-    RSI_PERIOD = config_manager.get("RSI_PERIOD")
-    ADX_PERIOD = config_manager.get("ADX_PERIOD")
-    ADX_THRESHOLD = config_manager.get("ADX_THRESHOLD")
-    STREND_PERIOD = config_manager.get("STREND_PERIOD")
-    STREND_MULT = config_manager.get("STREND_MULT")
+    
     DECISION_ALGORITHM = config_manager.get("DECISION_ALGORITHM")
 
-    """volatile_percent = volatility(KLINES[-VOLATILITY_PERIOD:])
-    
-    if volatile_percent <= -VOLATILITY_THRESHOLD:
-        logging.info(f'Decided to sell based on high volatility (Price change: {round(volatile_percent,2)}%)')
-        return sell(wallet, initial1, initial2)"""
-    
-    """last_trade_change = (float(KLINES[-1][4])/last_price-1)*100
-    if -last_trade_change >= LAST_TRADE_THRESHOLD:
-        logging.info(f'Decided to sell since price passed last trade (Price change: {round(last_trade_change,2)}%)')
-        return sell(wallet, initial1, initial2)"""
-
     if DECISION_ALGORITHM == 1:
+        RSI_THRESHOLD = config_manager.get("RSI_THRESHOLD_SELL")
+        RSI_PERIOD = config_manager.get("RSI_PERIOD")
+        ADX_PERIOD = config_manager.get("ADX_PERIOD")
+        ADX_THRESHOLD = config_manager.get("ADX_THRESHOLD")
+        STREND_PERIOD = config_manager.get("STREND_PERIOD")
+        STREND_MULT = config_manager.get("STREND_MULT")
         with concurrent.futures.ThreadPoolExecutor() as executor:
             rsi_future = executor.submit(rsi, KLINES[-(RSI_PERIOD*3+1):])
             heikin_ashi_future = executor.submit(heikin_ashi, KLINES[-(RSI_PERIOD+1):])
@@ -78,11 +63,15 @@ def sell_decision(config_manager, wallet, last_price):
         if reversal_count >= 1 and trend_count < 2:
             logging.info(f'Trend to sell not reversed yet! {msg}.')
 
+    elif DECISION_ALGORITHM == 4:
+        SENKOU_PERIOD = config_manager.get("SENKOU_PERIOD")
+        if ichimoku_cloud(KLINES[-SENKOU_PERIOD:], config_manager) == -1:
+            return sell(wallet, initial1, initial2)
+
     #logging.info(f'{msg}.')
     return
 
-
-def buy_decision(config_manager, wallet, last_price):
+def buy_decision(config_manager, wallet):
     config_manager.update_klines()
 
     SYMBOL1 = config_manager.get("SYMBOL1")
@@ -92,29 +81,15 @@ def buy_decision(config_manager, wallet, last_price):
     initial2 = float(BINANCE_API.get_asset_balance(asset=SYMBOL2)['free'])
 
     KLINES = config_manager.get("KLINES")
-    VOLATILITY_PERIOD = config_manager.get("VOLATILITY_PERIOD")
-    VOLATILITY_THRESHOLD = config_manager.get("VOLATILITY_THRESHOLD")
-    LAST_TRADE_THRESHOLD = config_manager.get("LAST_TRADE_THRESHOLD")
-    RSI_THRESHOLD = config_manager.get("RSI_THRESHOLD_BUY")
-    RSI_PERIOD = config_manager.get("RSI_PERIOD")
-    ADX_PERIOD = config_manager.get("ADX_PERIOD")
-    ADX_THRESHOLD = config_manager.get("ADX_THRESHOLD")
-    STREND_PERIOD = config_manager.get("STREND_PERIOD")
-    STREND_MULT = config_manager.get("STREND_MULT")
     DECISION_ALGORITHM = config_manager.get("DECISION_ALGORITHM")
-
-    """volatile_percent = volatility(KLINES[-VOLATILITY_PERIOD:])
-
-    if volatile_percent >= VOLATILITY_THRESHOLD:
-        logging.info(f'Decided to buy based on high volatility (Price change: {round(volatile_percent,2)}%)')
-        return buy(wallet, initial1, initial2)"""
-    
-    """last_trade_change = (float(KLINES[-1][4])/last_price-1)*100
-    if last_trade_change >= LAST_TRADE_THRESHOLD:
-        logging.info(f'Decided to buy since price passed last trade (Price change: {round(last_trade_change,2)}%)')
-        return buy(wallet, initial1, initial2)"""
     
     if DECISION_ALGORITHM == 1:
+        RSI_THRESHOLD = config_manager.get("RSI_THRESHOLD_BUY")
+        RSI_PERIOD = config_manager.get("RSI_PERIOD")
+        ADX_PERIOD = config_manager.get("ADX_PERIOD")
+        ADX_THRESHOLD = config_manager.get("ADX_THRESHOLD")
+        STREND_PERIOD = config_manager.get("STREND_PERIOD")
+        STREND_MULT = config_manager.get("STREND_MULT")
         with concurrent.futures.ThreadPoolExecutor() as executor:
             rsi_future = executor.submit(rsi, KLINES[-(RSI_PERIOD*3+1):])
             heikin_ashi_future = executor.submit(heikin_ashi, KLINES[-(RSI_PERIOD+1):])
@@ -155,9 +130,13 @@ def buy_decision(config_manager, wallet, last_price):
         if reversal_count >= 1 and trend_count < 2:
             logging.info(f'Trend to buy not reversed yet! {msg}.')
 
+    elif DECISION_ALGORITHM == 4:
+        SENKOU_PERIOD = config_manager.get("SENKOU_PERIOD")
+        if ichimoku_cloud(KLINES[-SENKOU_PERIOD:], config_manager) == 1:
+            return buy(wallet, initial1, initial2)
+
     #logging.info(f'{msg}.')
     return
-
 
 def binance_status(config_manager):
     BINANCE_API = config_manager.get("BINANCE_API")

@@ -40,7 +40,7 @@ def sell(wallet, initial1, initial2):
         pnl1 = wallet1 - config_manager.get("INITIAL_CAPITAL1")
         pnl2 = wallet2 - config_manager.get("INITIAL_CAPITAL2")
 
-        log_trade("SELL", sell_order_response["status"], qty, price, initial1, initial2, wallet1, wallet2, final1, final2, pnl1, pnl2, commission, comissionAsset)
+        log_trade("SELL", sell_order_response["status"], qty, price, initial1, initial2, wallet1, wallet2, final1, final2, pnl1, pnl2, commission, comissionAsset, config_manager.get("INITIAL_CAPITAL1"), config_manager.get("INITIAL_CAPITAL2"))
         log_last(SYMBOL,"SELL",wallet2,price)
 
     except (BinanceRequestException, BinanceAPIException, BinanceOrderException, BinanceOrderMinAmountException,
@@ -80,7 +80,7 @@ def buy(wallet, initial1, initial2):
         pnl1 = wallet1 - config_manager.get("INITIAL_CAPITAL1")
         pnl2 = wallet2 - config_manager.get("INITIAL_CAPITAL2")
 
-        log_trade("BUY", buy_order_response["status"], qty, price, initial1, initial2, wallet1, wallet2, final1, final2, pnl1, pnl2, commission, comissionAsset)
+        log_trade("BUY", buy_order_response["status"], qty, price, initial1, initial2, wallet1, wallet2, final1, final2, pnl1, pnl2, commission, comissionAsset, config_manager.get("INITIAL_CAPITAL1"), config_manager.get("INITIAL_CAPITAL2"))
         log_last(SYMBOL,"BUY",wallet1,price)
 
     except (BinanceRequestException, BinanceAPIException, BinanceOrderException, BinanceOrderMinAmountException,

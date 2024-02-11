@@ -1,4 +1,4 @@
-import logging
+import logging, certifi
 from binance.enums import *
 from pymongo.mongo_client import MongoClient
 from pymongo.server_api import ServerApi
@@ -26,7 +26,7 @@ class ConfigManager:
 
         MONGODB_URI = "mongodb+srv://idemir:Bugra07.@cryptotradebot.w9yryxn.mongodb.net/?retryWrites=true&w=majority"
         try:
-            mongodb = MongoClient(MONGODB_URI, server_api=ServerApi('1'))
+            mongodb = MongoClient(MONGODB_URI, tlsCAFile=certifi.where())
             config = mongodb.configuration.config.find().sort('_id', -1).limit(1).next()
             
             CANDLE_INTERVAL = config["CANDLE_INTERVAL"]

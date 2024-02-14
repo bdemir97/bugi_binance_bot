@@ -24,6 +24,12 @@ def main():
     #             f"*Initial capitals:* {round(config_manager.get('INITIAL_CAPITAL1'),3)} {config_manager.get('SYMBOL1')} & {round(config_manager.get('INITIAL_CAPITAL2'),3)} {config_manager.get('SYMBOL2')}")
 
     while True:
+        #sleep until the next hour
+        current_time = time.localtime()
+        seconds_remaining = 3600 - (current_time.tm_min * 60 + current_time.tm_sec) + 5
+        time.sleep(seconds_remaining)
+        logging.info(f"Slept from {time.strftime("%d/%m/%Y %H:%M:%S", current_time)} to {time.strftime("%d/%m/%Y %H:%M:%S",time.localtime())}.")
+
         check_for_config_update(config_manager)
 
         if not binance_status(config_manager):
@@ -57,9 +63,9 @@ def main():
 
         except Exception as e:
             print(f"An error occurred: {e}. Sleeping for 5 minutes!")
-            time.sleep(300)
+            time.sleep(30)
 
-        time.sleep(config_manager.get("SLEEP_DURATION"))
+        #time.sleep(config_manager.get("SLEEP_DURATION"))
         
 if __name__ == '__main__':
     main()

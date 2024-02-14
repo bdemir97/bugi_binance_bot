@@ -1,4 +1,4 @@
-from .function_indicators import rsi, heikin_ashi, adx, supertrend, ichimoku_cloud
+from .function_indicators import rsi, heikin_ashi, adx, supertrend, ichimoku_cloud, ichimoku_cloud_v2
 from .function_buy_sell import buy, sell
 import concurrent.futures, logging
 
@@ -64,8 +64,13 @@ def sell_decision(config_manager, wallet):
             logging.info(f'Trend to sell not reversed yet! {msg}.')
 
     elif DECISION_ALGORITHM == 4:
-        SENKOU_PERIOD = config_manager.get("SENKOU_PERIOD")
-        if ichimoku_cloud(KLINES[-SENKOU_PERIOD:], config_manager) == -1:
+        CLOUD_PERIOD = config_manager.get("CLOUD_PERIOD")
+        if ichimoku_cloud(KLINES[-CLOUD_PERIOD:], config_manager) == -1:
+            return sell(wallet, initial1, initial2)
+    
+    elif DECISION_ALGORITHM == 5:
+        CLOUD_PERIOD = config_manager.get("CLOUD_PERIOD")
+        if ichimoku_cloud_v2(KLINES[-CLOUD_PERIOD:], config_manager) == -1:
             return sell(wallet, initial1, initial2)
 
     #logging.info(f'{msg}.')
@@ -131,8 +136,13 @@ def buy_decision(config_manager, wallet):
             logging.info(f'Trend to buy not reversed yet! {msg}.')
 
     elif DECISION_ALGORITHM == 4:
-        SENKOU_PERIOD = config_manager.get("SENKOU_PERIOD")
-        if ichimoku_cloud(KLINES[-SENKOU_PERIOD:], config_manager) == 1:
+        CLOUD_PERIOD = config_manager.get("CLOUD_PERIOD")
+        if ichimoku_cloud(KLINES[-CLOUD_PERIOD:], config_manager) == 1:
+            return buy(wallet, initial1, initial2)
+    
+    elif DECISION_ALGORITHM == 5:
+        CLOUD_PERIOD = config_manager.get("CLOUD_PERIOD")
+        if ichimoku_cloud_v2(KLINES[-CLOUD_PERIOD:], config_manager) == 1:
             return buy(wallet, initial1, initial2)
 
     #logging.info(f'{msg}.')

@@ -119,7 +119,7 @@ def supertrend(klines, period, multiplier):
 ############## ICHIMOKU CLOUD ################
     
 def ichimoku_cloud(klines, config_manager):
-    current_price = (float(klines[-1][3]) + float(klines[-1][2]))/2
+    current_price = float(klines[-2][4])
     ichimoku_data = pd.DataFrame(klines, columns=["timestamp", "open", "high", "low", "close", "volume", "close_time", "quote_asset_volume","number_of_trades", "taker_buy_base_asset_volume", "taker_buy_quote_asset_volume", "ignore"])
 
     tenkan_sen = (ichimoku_data['high'].rolling(window=config_manager.get("TENKAN_PERIOD")).max() + ichimoku_data['low'].rolling(window=config_manager.get("TENKAN_PERIOD")).min()) / 2 
@@ -130,25 +130,48 @@ def ichimoku_cloud(klines, config_manager):
 
     line = 0; cloud = 0; ichi_slope = 1; lag = 0
     #if the tenkan_sen is above then sell signal, or buy signal
-    if tenkan_sen.iloc[-1] > kijun_sen.iloc[-1]: line = -1  
-    elif tenkan_sen.iloc[-1] < kijun_sen.iloc[-1]: line = 1  
+    if tenkan_sen.iloc[-2] > kijun_sen.iloc[-2]: line = -1  
+    elif tenkan_sen.iloc[-2] < kijun_sen.iloc[-2]: line = 1  
     
     #If the "current close price" vs. "open price x bar ago" has slope larger than y% then don't let trade
-    if abs(float(klines[-1][4])/float(klines[-config_manager.get("SLOPE_DISTANCE")][1])-1) > config_manager.get("ICHIMOKU_SLOPE"): ichi_slope = 0  
+    if abs(float(klines[-2][4])/float(klines[-config_manager.get("SLOPE_DISTANCE")][1])-1) > config_manager.get("ICHIMOKU_SLOPE"): ichi_slope = 0  
 
     #if senkou_a is above then buy signal, else sell signal
-    if senkou_a.iloc[-1] > senkou_b.iloc[-1]: cloud = 1  
-    elif senkou_a.iloc[-1] < senkou_b.iloc[-1]: cloud = -1  
+    if senkou_a.iloc[-2] > senkou_b.iloc[-2]: cloud = 1  
+    elif senkou_a.iloc[-2] < senkou_b.iloc[-2]: cloud = -1  
 
     #if % difference between "middle of the cloud" vs. "lagging chikou line" is larger than x% 
-    senkou_avg = (senkou_a.iloc[-1]+senkou_b.iloc[-1])/2
-    if abs(float(chikou.iloc[-1])/senkou_avg-1) >= config_manager.get("CHIKOU_DISTANCE"): lag = 1
+    senkou_avg = (senkou_a.iloc[-2]+senkou_b.iloc[-2])/2
+    if abs(float(chikou.iloc[-2])/senkou_avg-2) >= config_manager.get("CHIKOU_DISTANCE"): lag = 1
 
     #if "price is above the cloud" & "tenkan_sen passed kijun_sen" & "senkou_a passed senkou_b" & "no extreme slope change" then sell
-    if current_price > senkou_a.iloc[-1] and line == -1 and cloud == 1 and lag == 1 and ichi_slope == 1: 
+    if current_price > senkou_a.iloc[-2] and line == -1 and cloud == 1 and lag == 1 and ichi_slope == 1: 
          return -1
     #else if "price is below the cloud" & "kijun_sen passed tenkan_sen" & "senkou_b passed senkou_a" & "no extreme slope change" then buy
-    elif current_price < senkou_a.iloc[-1] and line == 1 and cloud == -1 and lag == 1 and ichi_slope == 1: 
+    elif current_price < senkou_a.iloc[-2] and line == 1 and cloud == -1 and lag == 1 and ichi_slope == 1: 
+         return 1
+    
+    return 0
+
+def ichimoku_cloud_v2(klines, config_manager):
+    current_price = float(klines[-2][4])
+    ichimoku_data = pd.DataFrame(klines, columns=["timestamp", "open", "high", "low", "close", "volume", "close_time", "quote_asset_volume","number_of_trades", "taker_buy_base_asset_volume", "taker_buy_quote_asset_volume", "ignore"])
+
+    red_line = (ichimoku_data['high'].rolling(window=config_manager.get("RED_LINE_PERIOD")).max() + ichimoku_data['low'].rolling(window=config_manager.get("RED_LINE_PERIOD")).min()) / 2 
+    blue_line = (ichimoku_data['high'].rolling(window=config_manager.get("BLUE_LINE_PERIOD")).max() + ichimoku_data['low'].rolling(window=config_manager.get("BLUE_LINE_PERIOD")).min()) / 2 
+    cloud_a = (red_line + blue_line) / 2 
+    cloud_b = (ichimoku_data['high'].rolling(window=config_manager.get("CLOUD_PERIOD")).max() + ichimoku_data['low'].rolling(window=config_manager.get("CLOUD_PERIOD")).min()) / 2
+
+    line = 0; 
+    #if the red_line crosses above the blue line then buy signal, opposite for sell signal
+    if red_line.iloc[-2] > blue_line.iloc[-2] and (red_line.iloc[-3] <= blue_line.iloc[-3] or red_line.iloc[-4] <= blue_line.iloc[-4]): line = 1  
+    elif red_line.iloc[-2] < blue_line.iloc[-2] and (red_line.iloc[-3] >= blue_line.iloc[-3] or red_line.iloc[-4] >= blue_line.iloc[-4]): line = -1  
+    
+    #if "price is above the cloud" & "red_line passed blue_line" & "cloud_a passed cloud_b" & "no extreme slope change" then sell
+    if current_price < cloud_a.iloc[-2] and current_price < cloud_b.iloc[-2] and line == -1: # and cloud == -1 and lag == 1: # and ichi_slope == 1: 
+         return -1
+    #else if "price is below the cloud" & "blue_line passed red_line" & "cloud_b passed cloud_a" & "no extreme slope change" then buy
+    elif current_price > cloud_a.iloc[-2] and current_price > cloud_b.iloc[-2] and line == 1: # and cloud == 1 and lag == 1: # and ichi_slope == 1: 
          return 1
     
     return 0

@@ -104,10 +104,10 @@ class ConfigManager:
                 "STREND_PERIOD": config["STREND_PERIOD"],
                 "STREND_MULT": config["STREND_MULT"],
 
-                "TENKAN_PERIOD": config["TENKAN_PERIOD"],
-                "KIJUN_PERIOD": config["KIJUN_PERIOD"],
-                "SENKOU_PERIOD": config["SENKOU_PERIOD"],
-                "CHIKOU_DISTANCE": config["CHIKOU_DISTANCE"],
+                "RED_LINE_PERIOD": config["RED_LINE_PERIOD"],
+                "BLUE_LINE_PERIOD": config["BLUE_LINE_PERIOD"],
+                "CLOUD_PERIOD": config["CLOUD_PERIOD"],
+                "LAG_LINE_DISTANCE": config["LAG_LINE_DISTANCE"],
                 "ICHIMOKU_SLOPE": config["ICHIMOKU_SLOPE"],
                 "SLOPE_DISTANCE": config["SLOPE_DISTANCE"],
 

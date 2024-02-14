@@ -126,14 +126,20 @@ class ConfigManager:
         self.load_config()
     
     def update_klines(self):
-        latest_kline = self.config["BINANCE_API"].get_historical_klines(
+        latest_klines = self.config["BINANCE_API"].get_historical_klines(
             symbol=self.config["SYMBOL1"] + self.config["SYMBOL2"],
             interval=self.config["KLINE_INTERVAL"],
-            limit=1,
-            end_str=str(int(datetime.now().timestamp() * 1000)))[0]
+            limit=2,
+            end_str=str(int(datetime.now().timestamp() * 1000)))
+        latest_kline = latest_klines[-1]
+        prev_kline = latest_klines[-2]
+
 
         if self.config["KLINES"][-1][0] != latest_kline[0]:
             self.config["KLINES"].append(latest_kline)
             self.config["KLINES"] = self.config["KLINES"][-self.config["KLINES_LEN"]:]
         elif self.config["KLINES"][-1][0] == latest_kline[0] and self.config["KLINES"][-1][4] != latest_kline[4]:
             self.config["KLINES"][-1] = latest_kline
+
+        if self.config["KLINES"][-2][0] == prev_kline[0] and self.config["KLINES"][-2][4] != prev_kline[4]:
+            self.config["KLINES"][-2] = prev_kline

@@ -28,7 +28,8 @@ def main():
         current_time = time.localtime()
         seconds_remaining = 3600 - (current_time.tm_min * 60 + current_time.tm_sec) + 5
         time.sleep(seconds_remaining)
-        logging.info(f"Slept from {time.strftime("%d/%m/%Y %H:%M:%S", current_time)} to {time.strftime("%d/%m/%Y %H:%M:%S",time.localtime())}.")
+        end_sleep_time = time.localtime()
+        logging.info(f"Slept from {time.strftime("%d/%m/%Y %H:%M:%S", current_time)} to {time.strftime("%d/%m/%Y %H:%M:%S",end_sleep_time)}.")
 
         check_for_config_update(config_manager)
 

@@ -8,7 +8,6 @@ import ta
 from html2image import Html2Image
 from io import BytesIO
 import requests
-import imgkit
 
 ##############################################################################################
 SEND_TELEGRAM_MESSAGE = True
@@ -114,13 +113,14 @@ def draw_table_as_image(data, output_path):
     </html>
     """
     
-    # Save HTML to file
-    html_path = 'table.html'
-    with open(html_path, 'w') as f:
-        f.write(html_content)
-    
-    # Convert HTML to image
-    imgkit.from_file(html_path, output_path, options={'width': '620', 'disable-smart-width': ''})
+    # Calculate the height of the table
+    row_height = 37  
+    num_rows = len(df) + 1  
+    table_height = row_height * num_rows
+
+    # Save HTML to image
+    hti = Html2Image()
+    hti.screenshot(html_str=html_content, save_as=output_path, size=(620, table_height))
 
 def send_message(signals, thread_id):
     data = [

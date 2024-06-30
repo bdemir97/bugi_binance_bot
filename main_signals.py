@@ -1,6 +1,8 @@
+from datetime import datetime, timedelta
+import logging
+import time
 from binance.enums import *
 from binance.client import Client
-import matplotlib.pyplot as plt
 import pandas as pd
 import ta
 from html2image import Html2Image # type: ignore
@@ -507,14 +509,37 @@ def fetch_data(binance_api, symbol):
 
     return df
 
+def get_next_run_time(current_time):
+    # Calculate the number of hours to the next 4-hour mark
+    next_hour = (current_time.hour // 4 + 1) * 4
+    if next_hour >= 24:
+        next_hour = 0
+
+    # Calculate the next run time
+    next_run = current_time.replace(hour=next_hour, minute=0, second=10, microsecond=0)
+
+    # If the next run time is in the past, move to the next day
+    if next_run <= current_time:
+        next_run += timedelta(days=1)
+    
+    return next_run
+
 def main():
     binance_api = Client(api_key=BINANCE_API_KEY, api_secret=BINANCE_SECRET_KEY, requests_params={'timeout': 60})
 
-    for i in range(len(SYMBOLS)):
-        df = fetch_data(binance_api, SYMBOLS[i])
-        calc_df = calculate_indicators(df)
-        signals = generate_signals(calc_df, SYMBOLS[i])
-        print(send_message(signals, TELEGRAM_THREAD_IDS[i]))
+    while True:
+        for i in range(len(SYMBOLS)):
+            df = fetch_data(binance_api, SYMBOLS[i])
+            calc_df = calculate_indicators(df)
+            signals = generate_signals(calc_df, SYMBOLS[i])
+            logging.info(send_message(signals, TELEGRAM_THREAD_IDS[i]))
         
+        current_time = datetime.now()
+        next_run_time = get_next_run_time(current_time)
+        seconds_remaining = (next_run_time - current_time).total_seconds()
+        time.sleep(seconds_remaining)
+        after_sleep_time = datetime.now()
+        logging.info(f"Slept from {current_time.strftime('%d/%m/%Y %H:%M:%S')} to {after_sleep_time.strftime('%d/%m/%Y %H:%M:%S')}")
+    
 if __name__ == '__main__':
     main()

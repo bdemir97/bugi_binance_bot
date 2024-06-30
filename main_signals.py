@@ -5,9 +5,10 @@ from binance.enums import *
 from binance.client import Client
 import pandas as pd
 import ta
-from html2image import Html2Image # type: ignore
+from html2image import Html2Image
 from io import BytesIO
 import requests
+import imgkit
 
 ##############################################################################################
 SEND_TELEGRAM_MESSAGE = True
@@ -93,7 +94,7 @@ def draw_table_as_image(data, output_path):
             box-sizing: border-box;
         }}
         .strong-green-pill {{ background-color: #5f9c61; color: #90d693;}}
-        .green-pill {{ background-color: #90d693; color: #013220;}}
+        .green-pill {{ background-color: #90d693; color: #5f9c61;}}
         .red-pill {{ background-color: #f2978f; color: #911104;}}
         .strong-red-pill {{ background-color: #911104; color: #f2978f;}}
         .yellow-pill {{ background-color: #f7e58d; color: #706102;}}
@@ -113,14 +114,13 @@ def draw_table_as_image(data, output_path):
     </html>
     """
     
-    # Calculate the height of the table
-    row_height = 37  
-    num_rows = len(df) + 1  
-    table_height = row_height * num_rows
-
-    # Save HTML to image
-    hti = Html2Image()
-    hti.screenshot(html_str=html_content, save_as=output_path, size=(620, table_height))
+    # Save HTML to file
+    html_path = 'table.html'
+    with open(html_path, 'w') as f:
+        f.write(html_content)
+    
+    # Convert HTML to image
+    imgkit.from_file(html_path, output_path, options={'width': '620', 'disable-smart-width': ''})
 
 def send_message(signals, thread_id):
     data = [

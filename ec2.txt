@@ -1,0 +1,54 @@
+INSTALLATION
+cd C:\Users\Admin\Desktop\Bugi\binance_bot\
+
+icacls idemir.pem /inheritance:r
+icacls idemir.pem /grant:r "%USERNAME%:R"
+
+ssh -i /Users/bugrademir/Desktop/Bugi/trade_bot_binance/idemir.pem ec2-user@51.20.124.220
+
+sudo yum groupinstall "Development Tools"
+sudo yum install gcc openssl-devel bzip2-devel libffi-devel zlib-devel
+sudo apt update
+sudo apt install build-essential zlib1g-dev libncurses5-dev libgdbm-dev libnss3-dev libssl-dev libreadline-dev libffi-dev wget
+
+wget https://www.python.org/ftp/python/3.11.7/Python-3.11.7.tgz
+tar -xf Python-3.11.7.tgz
+cd Python-3.11.7
+./configure --enable-optimizations
+make -j `nproc`
+sudo make altinstall
+python3.11 --version
+
+sudo yum install git
+sudo apt-get update
+sudo apt-get install git
+
+cd /home/to/myfolder
+rm -rf *
+
+git config --global user.name "bdemir97"
+git config --global user.email "idemir@sabanciuniv.edu"
+
+git clone https://github.com/bdemir97/bugi_binance_bot.git
+git pull
+
+sudo yum install python3-pip
+
+pip3 install -r requirements.txt
+
+nohup python3 main.py &
+
+ps -ef | grep main.py
+
+kill PID (username   PID     ...   command)
+
+IF SSH Connection Timeout -> got to security groups > launch-wizard-1 > add my IP
+
+unlink nohup.out
+
+
+
+
+
+
+

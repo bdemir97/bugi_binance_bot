@@ -70,7 +70,7 @@ def sell_decision(config_manager, wallet):
     
     elif DECISION_ALGORITHM == 5:
         CLOUD_PERIOD = config_manager.get("CLOUD_PERIOD")
-        if ichimoku_cloud_v2(KLINES[-CLOUD_PERIOD:], config_manager) == -1:
+        if ichimoku_cloud_v2(KLINES[-CLOUD_PERIOD*2:], config_manager) == -1:
             return sell(wallet, initial1, initial2)
 
     #logging.info(f'{msg}.')
@@ -142,7 +142,7 @@ def buy_decision(config_manager, wallet):
     
     elif DECISION_ALGORITHM == 5:
         CLOUD_PERIOD = config_manager.get("CLOUD_PERIOD")
-        if ichimoku_cloud_v2(KLINES[-CLOUD_PERIOD:], config_manager) == 1:
+        if ichimoku_cloud_v2(KLINES[-CLOUD_PERIOD*2:], config_manager) == 1:
             return buy(wallet, initial1, initial2)
 
     #logging.info(f'{msg}.')

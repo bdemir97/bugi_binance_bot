@@ -76,16 +76,16 @@
     "STREND_MULT": {
         "$numberInt": "2"
     },
-    "TENKAN_PERIOD": {
+    "RED_LINE_PERIOD": {
         "$numberInt": "19"
     },
-    "KIJUN_PERIOD": {
+    "BLUE_LINE_PERIOD": {
         "$numberInt": "26"
     },
-    "SENKOU_PERIOD": {
+    "CLOUD_PERIOD": {
         "$numberInt": "41"
     },
-    "CHIKOU_DISTANCE": {
+    "LAG_LINE_DISTANCE": {
         "$numberDouble": "0.026"
     },
     "ICHIMOKU_SLOPE": {
@@ -98,7 +98,7 @@
         "$numberDouble": "0.1"
     },
     "DECISION_ALGORITHM": {
-        "$numberInt": "4"
+        "$numberInt": "5"
     },
     "SLEEP_DURATION": {
         "$numberDouble": "300"
